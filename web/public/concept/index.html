@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore Lingua's reading concept: selected expressions, grammar, word families, and study notes. Prepared examples, no live parser.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'">
+  <title>Lingua — reading concept</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./concept.css">
+</head>
+<body>
+  <main class="lp-demo-shell">
+    <nav class="lp-demo-nav" aria-label="Demo navigation">
+      <a href="../">← Dictionary app</a>
+      <span>Concept · prepared examples</span>
+      <div class="lp-layout-picker" role="group" aria-label="Workspace layout">
+        <button data-layout-choice="Reading" aria-pressed="true">Reading</button>
+        <button data-layout-choice="Study" aria-pressed="false">Study</button>
+      </div>
+    </nav>
+<div id="lingua-concept">
+  <div class="lp-variants" aria-label="Lingua design concepts">
+    <section data-variant="Reading" aria-label="Reading workspace"><div class="lp" id="lingua-reading" data-theme="tokyo" data-layout="reading"></div></section>
+    <section data-variant="Study" aria-label="Study workspace" hidden><div class="lp" id="lingua-study" data-theme="tokyo" data-layout="study"></div></section>
+  </div>
+</div>
+  </main>
+  <script src="./fixtures.js"></script>
+  <script src="./concept.js"></script>
+</body>
+</html>

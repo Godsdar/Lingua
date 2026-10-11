@@ -17,8 +17,8 @@ learned by reading the repo, it does not belong here.
 
 ## Non-discoverable commands
 
-- There is **no test runner**. The gate is `npm run typecheck` plus the three
-  builds above.
+- Tests use Node’s built-in runner (`npm test`); Node 24+ is required for the
+  TypeScript tests. The gate is tests, `npm run typecheck`, and the three builds.
 - Validate the container pipeline locally with `docker build --target ci .`
   (typecheck + all builds inside the image).
 
@@ -46,11 +46,14 @@ learned by reading the repo, it does not belong here.
 - **Graphics stack is fixed (ADR-007):** `d3-hierarchy` layout + React-rendered SVG
   + `motion` + `modern-screenshot`. Do not introduce PixiJS/ECharts/Three/Konva for
   the tree, and never let heavy renderers enter the extension popup bundle (MV3).
-- **Visual language is fixed (ADR-008 / `docs/GRAPHICS.md`):** "Linguist's Atlas" —
+- **Existing application visual language (ADR-008 / `docs/GRAPHICS.md`):** "Linguist's Atlas" —
   `ultramarine` = shared ancestor, `gold` = the single "aha" accent. Do not
   reintroduce the generic cream `#f4f1ea` + terracotta `#c2410c` theme.
 - **TypeScript 7:** `baseUrl` was removed — `tsconfig` `paths` must use relative
   targets (`./src/...`). The typecheck scripts pass `--composite false` on purpose.
+
+- The separate reading concept uses theme tokens and prepared data (ADR-010).
+  Its grammar is not a live parser; do not describe it as one.
 
 ## Data & privacy (non-negotiable)
 
