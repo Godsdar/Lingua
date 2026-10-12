@@ -10,3 +10,5 @@ extension/dist/
 .env
 .env.*
 !.env.example
+.vercel
+.env*

@@ -1,0 +1,9 @@
+.env*
+.git
+.vercel
+node_modules
+out
+release
+extension/dist
+web/dist
+docs/assets

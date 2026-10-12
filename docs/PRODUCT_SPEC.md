@@ -8,7 +8,7 @@
 
 | Вопрос | Решение или статус |
 |---|---|
-| Проект | TypeScript-версия `local TypeScript checkout`, GitHub [Godsdar/lingua](https://github.com/Godsdar/lingua). Старую JavaScript-версию не развиваем |
+| Проект | TypeScript-версия `local TypeScript checkout`, GitHub [Godsdar/Lingua](https://github.com/Godsdar/Lingua). Старую JavaScript-версию не развиваем |
 | Имя | Lingua, через u; в исходниках и репозитории сейчас Lingua. Название интерфейса и публичного продукта — Lingua, с прописной L |
 | Первая аудитория | Автор, затем похожие пользователи |
 | Главная задача | Разбор смысла и грамматики предложения |
