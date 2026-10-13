@@ -14,7 +14,7 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
   `src/preload`, `src/renderer`), the Chrome MV3 extension (`extension/`), and the
   static web app (`web/`). **A change in `src/core/` affects all three** — verify
   them all before finishing:
-  `npm run typecheck && npm run build && npm run build:ext && npm run build:web`.
+  `npm run typecheck && npm run build && npm run build:ext && npm run build:web && npm run build:server`.
 - Product/UX intent lives in `docs/DESIGN.md`, `docs/POSITIONING.md`,
   `docs/GRAPHICS.md`. Record architectural decisions as new ADRs in
   `docs/decisions/` (`ADR-00N-*.md`, sequential; never delete old ones).
@@ -22,7 +22,7 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
 ## Non-discoverable commands
 
 - Tests use Node’s built-in runner (`npm test`); Node 24+ is required for the
-  TypeScript tests. The gate is tests, `npm run typecheck`, and the three builds.
+  TypeScript tests. The gate is tests, `npm run typecheck`, all four builds, and `npm run smoke:server`.
 - Validate the container pipeline locally with `docker build --target ci .`
   (typecheck + all builds inside the image).
 
@@ -38,7 +38,8 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
   DeepL / LibreTranslate are opt-in via `DEEPL_API_KEY` / `LIBRETRANSLATE_URL`.
 - **Never ship provider keys in client code.** The web and extension bundles are
   public; `DEEPL_API_KEY` / `LIBRETRANSLATE_URL` must stay server-side (desktop env
-  or a proxy). There is no backend today by design (ADR-009).
+  or a proxy). The opt-in Node backend is in `server/` (ADR-012 supersedes ADR-009).
+  Its service credential must never enter a browser bundle.
 - **Wiktionary requests must stay batched and throttled** (`src/core/wiktionary.ts`:
   `queryBatch`, `getLexicons`, the scheduler). Do not add parallel per-word fetches
   or bypass the min-gap/429 handling — Wikimedia rate-limits hard.
@@ -63,8 +64,18 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
 
 - Etymology/POS/translations come from English Wiktionary under **CC BY-SA** — keep
   the attribution in the UI; never scrape Etymonline.
-- No accounts, no telemetry; nothing leaves the device beyond the dictionary and
-  translation requests. Keep user collections in `localStorage`.
+- No accounts or product telemetry. The concept remains local; API analysis must
+  be an explicit submission of selected context. Translation is opt-in on the API.
+  Never log user text, query values, credentials, or raw upstream errors.
+
+## Backend guardrails (ADR-012)
+
+- Read `docs/BACKEND_ARCHITECTURE.md` and `docs/BACKEND_RUNBOOK.md`.
+- HTTP/auth/limits belong in `server/`, not browser-compatible `src/core/`.
+- Propagate cancellation through every provider and fallback; retain bounded concurrency.
+- Prepared analysis must remain marked `prepared`; unsupported text is `unavailable`.
+- Keep Vercel static until a public session/gateway and deployment budget are agreed.
+  Never deploy an anonymous paid-provider proxy or expose the service key to clients.
 
 ## Gotchas
 

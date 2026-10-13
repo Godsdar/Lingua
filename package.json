@@ -8,17 +8,23 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web && npm run typecheck:server",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
-    "test": "node --test src/core/*.test.ts web/concept/domain/*.test.mjs",
+    "test": "node --test src/core/*.test.ts web/concept/domain/*.test.mjs && npm run test:server",
     "build:ext": "vite build --config extension/vite.config.ts",
     "dev:web": "vite --config web/vite.config.ts",
     "build:web": "vite build --config web/vite.config.ts",
     "dist": "electron-vite build && electron-builder",
     "dist:mac": "electron-vite build && electron-builder --mac",
     "dist:win": "electron-vite build && electron-builder --win",
-    "dist:linux": "electron-vite build && electron-builder --linux"
+    "dist:linux": "electron-vite build && electron-builder --linux",
+    "dev:server": "node --watch server/src/index.ts",
+    "build:server": "vite build --config server/vite.config.ts",
+    "start:server": "node server-dist/index.mjs",
+    "typecheck:server": "tsc -p tsconfig.server.json",
+    "test:server": "node --test server/test/*.test.ts",
+    "smoke:server": "node server/smoke.mjs && node --test server/socket-smoke.ts"
   },
   "license": "MIT",
   "devDependencies": {
@@ -40,7 +46,11 @@
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "@fastify/helmet": "13.1.2",
+    "@fastify/rate-limit": "11.2.1",
+    "@fastify/swagger": "9.9.2",
     "d3-hierarchy": "^3.1.2",
+    "fastify": "5.12.7",
     "motion": "^13.5.0"
   }
 }

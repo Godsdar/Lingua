@@ -240,3 +240,7 @@
 Внутренние источники: `AGENTS.md`, `README.md`, `docs/DESIGN.md`, `POSITIONING.md`, `PIPELINE.md`, `GRAPHICS.md`, `ETYMOLOGY_TREE.md`, ADR-003/006/007/008/009; `src/shared/types.ts`, `src/core/analyze.ts`, `wiktionary.ts`, `providers.ts`, `etymologyTree.ts`, `components/EtymologyTree.tsx`. Локальный blue-tree: `src/tree.js`, `src/main.js`. GitHub проверен по репозиторию и файлам package/AGENTS/tree builder; это не утверждение о полном совпадении всех файлов с локальной копией.
 
 ТЗ составлено на основании чтения кода и документов с участием трёх агентов: архитектура и лингвистика, 2D-дерево, первые пользователи. 13 октября исправлено превращение ветвящегося ety-tree в ложную цепочку. Концепт перенесён в `web/concept/` и собирается Vite; TypeScript-модули графов и выбора вхождений проверяются тестами. Качество живых ответов и NLP-моделей ещё требует отдельной оценки.
+
+## Backend foundation — 2026-10-13
+
+ADR-012 authorizes a Node.js 24 / Fastify backend with prepared analysis, optional translation and request resilience. See BACKEND_ARCHITECTURE.md and BACKEND_RUNBOOK.md. This supersedes earlier no-backend planning, but does not activate paid hosting, public browser access, live grammar or account synchronization.

@@ -35,6 +35,14 @@ jobs:
       - name: Build web
         run: npm run build:web
 
+      - name: Build and smoke-test API
+        run: npm run build:server && npm run smoke:server
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lingua-server
+          path: server-dist
+
       - uses: actions/upload-artifact@v4
         with:
           name: lingua-desktop
@@ -60,3 +68,20 @@ jobs:
 
       - name: Build web image (nginx)
         run: docker build --target web -t lingua-web .
+
+      - name: Build API image (non-root Node runtime)
+        run: docker build --target server -t lingua-server .
+
+      - name: Smoke-test API container
+        run: |
+          docker run -d --name lingua-api -e LINGUA_API_KEY=ci-only-test-key-not-a-real-secret-000 lingua-server
+          trap 'docker logs lingua-api; docker rm -f lingua-api' EXIT
+          for attempt in $(seq 1 30); do
+            if docker exec lingua-api node -e "fetch('http://127.0.0.1:8787/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"; then
+              docker stop -t 15 lingua-api
+              test "$(docker inspect -f '{{.State.ExitCode}}' lingua-api)" = 0
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1

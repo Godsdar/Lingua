@@ -1,5 +1,7 @@
 # ADR-009: Бэкенд — нет сейчас; тонкий прокси и предвычисленный датасет позже
 
+> The no-backend decision is superseded by [ADR-012](ADR-012-node-backend.md), accepted 2026-10-13. This document records the earlier decision.
+
 ## Status
 Accepted
 

@@ -74,10 +74,13 @@ concept. For Electron development, use `npm run dev`.
 
 | Command | Purpose |
 |---|---|
-| `npm test` | Domain, occurrence, export, and Wiktionary regression tests |
-| `npm run typecheck` | Main/preload and renderer typechecking |
+| `npm test` | Domain, export, dictionary, and API resilience tests |
+| `npm run typecheck` | Desktop, web, and API typechecking |
 | `npm run dev:web` / `npm run build:web` | Web development / production output in `web/dist` |
 | `npm run dev` / `npm run build` | Electron development / output in `out` |
+| `npm run dev:server` | Local Fastify API on `127.0.0.1:8787` |
+| `npm run build:server` / `start:server` | Standalone API in `server-dist` / run it |
+| `npm run smoke:server` | Verify the built API and graceful shutdown |
 | `npm run preview` | Run the built desktop app |
 | `npm run build:ext` | Chrome MV3 extension in `extension/dist` |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Desktop installers in `release` |
@@ -110,7 +113,9 @@ src/main/              Electron main process
 src/preload/           contextBridge adapter
 src/renderer/          React/MUI application UI
 web/                   Browser adapter and entry
-web/concept/    Vite concept entry, typed explorers/domain, styles and fixtures
+web/concept/           Vite concept entry, typed explorers/domain and styles
+src/data/              Shared curated reading examples and sourced families
+server/                Node.js 24 + Fastify API, contracts and provider resilience
 extension/             Chrome MV3 popup and context menu
 docs/                  Specifications, design, architecture, and decisions
 ```
@@ -119,6 +124,28 @@ One shared core supports web, Chrome, and Electron. The separate concept loads
 only local assets and makes no dictionary or translation requests. It is a
 workflow reference with typed React graph explorers and pure TypeScript domain modules.
 The editor and report controller are still JavaScript; gradual extraction continues.
+
+## Backend foundation
+
+The opt-in API uses **Node.js 24 LTS, TypeScript, and Fastify 5**. It exposes
+versioned analysis/translation endpoints, OpenAPI, health checks, strict input
+limits, bounded provider concurrency, cancellation, deadlines, and a circuit breaker.
+Translation is disabled by default. Production and non-loopback listeners require
+a service credential; never put that credential into frontend code.
+
+```sh
+npm run dev:server
+# In another terminal:
+curl http://127.0.0.1:8787/v1/capabilities
+```
+
+The analysis adapter currently serves the same prepared examples as the concept.
+Unknown inputs return unavailable layers. The public demo does not call this API.
+Live parsing, public session authentication, persistent notes, and production
+hosting are still pending. The API stores no submitted documents or notes.
+
+[Architecture](docs/BACKEND_ARCHITECTURE.md) · [Runbook](docs/BACKEND_RUNBOOK.md) ·
+[Backend decision](docs/decisions/ADR-012-node-backend.md)
 
 ## Data and privacy
 

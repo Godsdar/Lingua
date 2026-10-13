@@ -68,3 +68,5 @@ agreeing on the workflow and sentence-analysis contract. Reuse shared domain
 types and provider adapters; do not turn fixture matching into a live parser.
 
 The updated boundaries are recorded in [ADR-011](decisions/ADR-011-progressive-language-exploration.md). Production CSP still disallows API connections; local Vite development omits CSP to allow its refresh runtime. JSON exports include only source documents referenced by exported notes.
+
+Prepared data now lives in `src/data/reading-fixtures.mjs`; the web fixture file re-exports it. The opt-in backend shares these examples (ADR-012). The concept still makes no API requests.

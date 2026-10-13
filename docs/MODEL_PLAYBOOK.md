@@ -12,7 +12,7 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 
 - Name: **Lingua**. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
 - Main flow: sentence or selected expression → meaning/grammar → selected word's origin → note/export.
-- $0 operation. No paid API, backend, accounts, analytics, desktop signing, or mobile release as a shortcut.
+- $0 operation. No paid infrastructure/API, accounts, analytics, desktop signing, or mobile release as a shortcut. The local Node backend is authorized by ADR-012; public API hosting is a separate rollout.
 - `/` is the live dictionary. `/concept/` is a separate prepared-data workflow. Three sentence examples and two word families are not a live parser.
 - Repeated words are separate occurrences. Keep exact text and UTF-16 `[start,end)` offsets. Editing invalidates old results.
 - Syntax, morphology, meaning, translation and etymology are distinct layers. Never infer ancestry from similar spelling, meaning, translation, or nearby nodes.
@@ -25,9 +25,10 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 | Theme, spacing, responsive appearance | `web/concept/concept.css` | Three themes, 390 px + desktop, keyboard focus |
 | Tree/syntax interaction, animation | `web/concept/components/explorers.tsx` | Stable IDs, selected path, focus, reduced motion |
 | Layout, dependency heads, selection offsets | `web/concept/domain/graphs.ts`, `selection.ts` | `npm test`, `npm run typecheck` |
-| Prepared examples | `web/concept/fixtures.mjs` | Source evidence, exact text slices, graph validity |
+| Prepared examples | `src/data/reading-fixtures.mjs` (web re-export) | Source evidence, exact text slices, graph validity |
 | Editor, session notes, reports | `web/concept/concept.js` | Stale results, immutable saved notes, escaped HTML |
 | Live dictionary/translation | `src/core/`, `src/shared/types.ts` | Tests + all three builds |
+| API contracts, auth, resilience | `server/src/`, `docs/BACKEND_ARCHITECTURE.md` | `npm run test:server`, `typecheck:server`, `build:server`, `smoke:server` |
 | Build/deployment | `web/vite.config.ts`, `.github/workflows/`, `vercel.json` | Both entry URLs, relative assets, production CSP |
 
 New domain behavior goes into typed modules. Keep colors/spacing out of domain data. Do not add business rules to SVG coordinates, event handlers or CSS. Use existing D3 hierarchy + React + Motion; no second graph library.
@@ -47,6 +48,7 @@ New domain behavior goes into typed modules. Keep colors/spacing out of domain d
 - `npm run typecheck`
 - `npm run build:web`
 - Also `npm run build && npm run build:ext` for shared core/contracts or build architecture changes.
+- For backend changes: `npm run build:server && npm run smoke:server`; verify production authentication, cancellation, malformed inputs, no private logs and graceful shutdown. Use injected providers in tests; never spend API credits.
 - For visual changes: inspect desktop + narrow viewport, all themes, branch expand/collapse, syntax selection, keyboard focus and reduced motion. Use a real browser; a successful build is not visual verification.
 - For notes/export: edit after analysis; old data must not export as new analysis. Save two occurrences; verify ranges and source text in JSON. Download HTML and retain evidence/attribution.
 - `git diff --check`; update affected docs and a new ADR when a decision changes. Never delete old ADRs.

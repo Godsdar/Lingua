@@ -7,7 +7,7 @@ Dictionary app: https://lingua-lac.vercel.app/
 
 `vercel.json` uses `npm ci`, `npm run build:web`, and the `web/dist` output.
 There are no server functions or paid inference services. Existing GitHub CI
-checks tests, types, all three builds, and the Docker images.
+checks tests, types, all four builds, and the Docker images.
 
 To publish using your own Vercel account:
 
@@ -33,3 +33,11 @@ Relative assets work on Vercel’s root and the Pages repository prefix.
 
 Check `/`, `/concept/`, favicon, theme selection, Reading/Study switching, and a
 report download. Concept notes are session-only and disappear when reloading.
+
+## Opt-in backend (ADR-012)
+
+The static Vercel/Pages sites do not start the new API. Run it locally or use the
+separate `server` Docker target; see [BACKEND_RUNBOOK.md](BACKEND_RUNBOOK.md).
+CI builds and smoke-tests both the compiled Node process and the API container.
+No public API host, service credential, paid plan, or client integration is
+provisioned by this change. Never set `LINGUA_API_KEY` as a public Vite variable.

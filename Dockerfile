@@ -15,7 +15,25 @@ FROM build AS ci
 RUN npm test \
  && npm run typecheck \
  && npm run build \
- && npm run build:ext
+ && npm run build:ext \
+ && npm run build:server \
+ && npm run smoke:server
+
+# ---- server-build: compile the standalone API ----
+FROM build AS server-build
+RUN npm run typecheck:server && npm run build:server
+
+# ---- server: opt-in API; provide LINGUA_API_KEY at runtime ----
+FROM node:24-slim AS server
+WORKDIR /app
+ENV NODE_ENV=production LINGUA_HOST=0.0.0.0 PORT=8787
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY --from=server-build /app/server-dist ./server-dist
+USER node
+EXPOSE 8787
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD node -e "fetch('http://127.0.0.1:8787/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "server-dist/index.mjs"]
 
 # ---- web: serve the static SPA ----
 FROM nginx:1.27-alpine AS web

@@ -7,3 +7,4 @@ release
 extension/dist
 web/dist
 docs/assets
+server-dist
