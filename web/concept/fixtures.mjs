@@ -1,5 +1,5 @@
 /* Handcrafted sentence analyses and source-checked word families; see docs/CONCEPT.md. */
-window.LINGUA_CONCEPT_DATA = {
+export const conceptData = {
   "sentences": {
     "examples": [
       {

@@ -10,8 +10,23 @@ export default defineConfig({
   resolve: {
     alias: { '@shared': resolve(root, '../src/shared') }
   },
-  plugins: [react()],
+  plugins: [react(), {
+    name: 'local-development-csp',
+    apply: 'serve',
+    // Vite injects a refresh preamble and a websocket client only in development.
+    // Production HTML keeps its restrictive CSP, including connect-src 'none'.
+    transformIndexHtml: {
+      order: 'pre',
+      handler: html => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/g, '')
+    }
+  }],
   build: {
+    rollupOptions: {
+      input: {
+        dictionary: resolve(root, 'index.html'),
+        concept: resolve(root, 'concept/index.html')
+      }
+    },
     outDir: resolve(root, 'dist'),
     emptyOutDir: true
   }

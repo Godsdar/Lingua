@@ -241,7 +241,7 @@ function decodeEntities (value: string): string {
     .replace(/&amp;/g, '&')
 }
 
-function chainFromEtyTree (html: string, langName: string): EtymologyNode[] {
+export function chainFromEtyTree (html: string, langName: string): EtymologyNode[] {
   const start = html.search(new RegExp(`<h2[^>]*id="${langName}"`, 'i'))
   if (start < 0) return []
   const rest = html.slice(start)
@@ -250,7 +250,7 @@ function chainFromEtyTree (html: string, langName: string): EtymologyNode[] {
   const match = section.match(/data-ety-tree-json="([^"]+)"/)
   if (!match) return []
 
-  let root: any
+  let root: unknown
   try {
     root = JSON.parse(decodeEntities(match[1]))
   } catch {
@@ -258,20 +258,24 @@ function chainFromEtyTree (html: string, langName: string): EtymologyNode[] {
   }
 
   const chain: EtymologyNode[] = []
-  const walk = (node: any): void => {
-    if (node && typeof node === 'object') {
-      if (node.term) {
-        chain.push({
-          lang: node.lang,
-          langName: node.lang_name ?? displayName(node.lang),
-          word: cleanForm(node.term)
-        })
-      }
-      if (Array.isArray(node.terms)) node.terms.forEach(walk)
-      if (Array.isArray(node.children)) node.children.forEach(walk)
+  // This API returns a chain. Flattening sibling branches would fabricate ancestry.
+  // Keep the existing wikitext fallback when the tree needs a graph representation.
+  const walk = (value: unknown, depth = 0): boolean => {
+    if (!value || typeof value !== 'object' || depth > 32) return false
+    const node = value as Record<string, unknown>
+    if (node.term !== undefined) {
+      if (typeof node.term !== 'string' || typeof node.lang !== 'string') return false
+      const word = cleanForm(node.term)
+      if (!word) return false
+      chain.push({ lang: node.lang, langName: typeof node.lang_name === 'string' ? node.lang_name : displayName(node.lang), word })
     }
+    if ((node.terms !== undefined && !Array.isArray(node.terms)) ||
+        (node.children !== undefined && !Array.isArray(node.children))) return false
+    const children: unknown[] = [...(Array.isArray(node.terms) ? node.terms : []), ...(Array.isArray(node.children) ? node.children : [])]
+    if (children.length > 1) return false
+    return children.length === 0 || walk(children[0], depth + 1)
   }
-  walk(root)
+  if (!walk(root)) return []
   return chain
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "lingua-ts",
   "version": "0.1.0",
-  "description": "Lingua — translation and the Indo-European language tree",
+  "description": "Lingua \u2014 translation and the Indo-European language tree",
   "author": "Lingua",
   "main": "./out/main/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
-    "test": "node --test src/core/etymologyTree.test.ts",
+    "test": "node --test src/core/*.test.ts web/concept/domain/*.test.mjs",
     "build:ext": "vite build --config extension/vite.config.ts",
     "dev:web": "vite --config web/vite.config.ts",
     "build:web": "vite build --config web/vite.config.ts",

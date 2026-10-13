@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="web/public/concept/favicon.svg" width="72" height="72" alt="Lingua logo">
+<img src="web/concept/favicon.svg" width="72" height="72" alt="Lingua logo">
 
 # Lingua
 
@@ -40,8 +40,8 @@ its explanation and context as a study note.
 
 [![Lingua Study workspace: selected word and contextual dependencies](docs/assets/concept-grammar@2x.png)](docs/assets/concept-grammar@2x.png)
 
-Both images are fresh **2×, lossless PNG** captures of the actual interface,
-The grammar view is cropped to its working area. Click an image to inspect it at full resolution.
+Both images are fresh **2×, lossless PNG** captures of the actual interface.
+Click an image to inspect it at full resolution.
 
 ## What works today
 
@@ -74,7 +74,7 @@ concept. For Electron development, use `npm run dev`.
 
 | Command | Purpose |
 |---|---|
-| `npm test` | Etymology-tree tests using Node’s TypeScript-capable test runner |
+| `npm test` | Domain, occurrence, export, and Wiktionary regression tests |
 | `npm run typecheck` | Main/preload and renderer typechecking |
 | `npm run dev:web` / `npm run build:web` | Web development / production output in `web/dist` |
 | `npm run dev` / `npm run build` | Electron development / output in `out` |
@@ -110,14 +110,15 @@ src/main/              Electron main process
 src/preload/           contextBridge adapter
 src/renderer/          React/MUI application UI
 web/                   Browser adapter and entry
-web/public/concept/    Separate styles, interaction, and prepared data
+web/concept/    Vite concept entry, typed explorers/domain, styles and fixtures
 extension/             Chrome MV3 popup and context menu
 docs/                  Specifications, design, architecture, and decisions
 ```
 
 One shared core supports web, Chrome, and Electron. The separate concept loads
 only local assets and makes no dictionary or translation requests. It is a
-workflow reference for planned typed React integration.
+workflow reference with typed React graph explorers and pure TypeScript domain modules.
+The editor and report controller are still JavaScript; gradual extraction continues.
 
 ## Data and privacy
 
@@ -135,10 +136,13 @@ does not prove historical kinship. [Data license](https://creativecommons.org/li
 ## Roadmap and documentation
 
 Next: compare local/cloud English parsers, preserve contextual token occurrences,
-integrate the chosen layout, expand sourced families, and add durable notes and
-smooth reduced-motion-aware animations.
+integrate the chosen layout, expand sourced families, and add durable notes.
+Branch disclosure, selected-lineage focus, dependency arcs, and reduced-motion-aware
+transitions are now implemented in the concept.
 
 - [Product specification](docs/PRODUCT_SPEC.md) and [architecture plan](docs/ARCHITECTURE_PLAN.md)
 - [Concept workflow](docs/CONCEPT.md) and [deployment](docs/DEPLOYMENT.md)
 - [Architecture decisions](docs/decisions/), [existing design](docs/DESIGN.md), and [graphics](docs/GRAPHICS.md)
+- [Interaction design](docs/TREE_AND_ANALYSIS_DESIGN.md), [architecture review](docs/reviews/2026-10-13-architecture.md), and [engine evaluation](docs/ENGINE_EVALUATION.md)
+- [Model implementation playbook](docs/MODEL_PLAYBOOK.md)
 - [Contribution guide](CONTRIBUTING.md) and [agent rules](AGENTS.md)

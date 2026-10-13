@@ -26,7 +26,7 @@ Mirror: https://godsdar.github.io/Lingua/concept/
 The repository is named `Godsdar/Lingua`; use that capitalization in Pages paths.
 The Pages workflow runs tests and typechecking before uploading its web build.
 
-The concept is copied from `web/public/concept/` into `web/dist/concept/`.
+The concept is a second Vite entry at `web/concept/index.html`, built into `web/dist/concept/`. Vercel runs tests and typechecking before building; GitHub Pages retains its own equivalent gates.
 Relative assets work on Vercel’s root and the Pages repository prefix.
 
 ## Verification

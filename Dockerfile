@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- build: compile the static web app from the shared core ----
-FROM node:22-slim AS build
+FROM node:24-slim AS build
 WORKDIR /app
 # The web build does not need the Electron runtime binary.
 ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
@@ -12,7 +12,8 @@ RUN npm run build:web
 
 # ---- ci: typecheck and build every surface (desktop, extension, web) ----
 FROM build AS ci
-RUN npm run typecheck \
+RUN npm test \
+ && npm run typecheck \
  && npm run build \
  && npm run build:ext
 

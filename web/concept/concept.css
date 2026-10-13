@@ -103,3 +103,40 @@ body {margin:0;background:#14151d;color:#c0caf5;font-family:system-ui,sans-serif
 #lingua-concept .cursor-interaction {cursor:pointer;}
 [hidden] {display:none!important;}
 @media(max-width:420px){.lp-demo-shell{margin:12px auto;padding:0 10px;}}
+
+/* Explorer surfaces share theme tokens; the domain supplies only coordinates. */
+#lingua-concept .lp button:focus-visible,
+#lingua-concept .lp a:focus-visible,
+#lingua-concept .lp summary:focus-visible,
+#lingua-concept .lp-graph-scroll:focus-visible {outline:2px solid var(--lp-accent);outline-offset:4px;}
+#lingua-concept .lp-family-explorer {margin-top:18px;}
+#lingua-concept .lp-branch-picker {display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+#lingua-concept .lp-branch-picker .lp-label {margin-right:8px;}
+#lingua-concept .lp-branch-picker button {border:1px solid var(--lp-line);font-size:12px;border-radius:20px;padding:5px 11px;}
+#lingua-concept .lp-branch-picker button[aria-pressed="true"] {background:var(--lp-soft);color:var(--lp-accent);border-color:transparent;}
+#lingua-concept .lp-explorer-grid {display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:26px;align-items:start;}
+#lingua-concept .lp-graph-panel {min-width:0;}
+#lingua-concept .lp-graph-toolbar {display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--lp-line);padding-bottom:9px;}
+#lingua-concept .lp-graph-toolbar button {font-size:12px;padding:5px 9px;color:var(--lp-muted);}
+#lingua-concept .lp-graph-toolbar button[aria-pressed="true"] {background:var(--lp-soft);color:var(--lp-accent);}
+#lingua-concept .lp-graph-scroll {overflow:auto;max-width:100%;overscroll-behavior-inline:contain;scrollbar-width:thin;scrollbar-color:var(--lp-line) transparent;border-bottom:1px solid var(--lp-line);}
+#lingua-concept .lp-graph-stage {position:relative;}
+#lingua-concept .lp-graph-stage svg {position:absolute;inset:0;}
+#lingua-concept .lp-graph-node {position:absolute;top:0;left:0;}
+#lingua-concept .lp button.lp-family-node {width:126px;transform:translate(-50%,-50%);padding:8px 6px;background:var(--lp-bg);line-height:1.4;cursor:pointer;}
+#lingua-concept .lp-family-node .lp-form {display:block;font-size:17px;}
+#lingua-concept .lp-family-node .lp-lang {display:block;font-size:10px;letter-spacing:.15px;color:var(--lp-muted);margin-top:3px;}
+#lingua-concept .lp button.lp-family-node[aria-pressed="true"] {background:var(--lp-soft);color:var(--lp-accent);box-shadow:0 0 0 1px var(--lp-accent);}
+#lingua-concept .lp-family-node.is-root .lp-form {font-family:Georgia,serif;font-style:italic;font-size:23px;color:var(--lp-gold);}
+#lingua-concept .lp-graph-legend {display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--lp-muted);font-size:11px;margin-top:12px;}
+#lingua-concept .lp-syntax-explorer {margin:18px 0;}
+#lingua-concept .lp-syntax-stage {position:relative;}
+#lingua-concept .lp-syntax-stage svg {position:absolute;inset:0;overflow:visible;}
+#lingua-concept .lp-syntax-token {position:absolute;width:100px;line-height:1.45;text-align:center;}
+#lingua-concept .lp-syntax-token small {display:block;font-size:10px;color:var(--lp-muted);margin-top:4px;}
+#lingua-concept .lp-syntax-token[aria-pressed="true"] {background:var(--lp-soft);color:var(--lp-accent);}
+#lingua-concept .lp-arc-label {fill:var(--lp-accent);font-size:11px;paint-order:stroke;stroke:var(--lp-bg);stroke-width:6px;stroke-linejoin:round;}
+#lingua-concept .lp-syntax-reading {border-left:2px solid var(--lp-accent);padding:10px 14px;background:var(--lp-surface);border-radius:0 6px 6px 0;font-size:13px;}
+#lingua-concept .lp-dependency-details {margin:18px 0;}
+#lingua-concept .lp[data-layout="study"] .lp-explorer-grid {grid-template-columns:minmax(0,1fr);}
+@media(max-width:760px){#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr);}}

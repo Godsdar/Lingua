@@ -4,6 +4,10 @@ Living list of non-discoverable landmines and workflow rules. `README.md` covers
 commands; `docs/` covers product and architecture intent. If something can be
 learned by reading the repo, it does not belong here.
 
+## Required implementation guide
+
+Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies to all models, including Sol medium, and gives task routing, product invariants, checks and release limits. For the reading UX, ADR-011 and TREE_AND_ANALYSIS_DESIGN.md are the current direction.
+
 ## Scope & routing
 
 - One shared core (`src/core/`) feeds three surfaces: Electron (`src/main`,
