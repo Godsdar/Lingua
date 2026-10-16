@@ -65,3 +65,23 @@ explicit sourced lexical lookup and offline prepared examples. Live graphs show
 only supported explicit sources/components with separate origins; curated
 families can show wider related-language branches. This remains an alpha with
 session-only notes and no claim of complete semantics or etymological coverage.
+
+## Night notebook implementation — 2026-10-16
+
+ADR-015 applies the research direction to the existing reading workspace. The
+passage stays visible while writing/analysis controls open under **Write or
+paste a passage**. Word origins leads the view tabs. Theme tokens support the
+same Tokyo Night, Light and Graphite choices.
+
+The tree uses a dotted notebook canvas, serif forms, a highlighted lineage and
+a field-note inspector with clickable ancestors and source evidence. Up to
+three initial endpoints give a restrained overview; individual branch chips
+and Reveal all / Fewer branches control density. SVG edges and nodes enter and
+exit within 320 ms; exiting node controls become inert. Reduced motion has no
+movement. Changing themes preserves the open branches and selected form.
+
+Historical families grow upward; live dictionary source graphs grow downward
+and keep relation labels. Folding all live sources leaves the word visible.
+No forms, edges or source claims are added by the redesign. Native horizontal
+scrolling keeps wide trees readable; the inspector stacks below on narrow
+screens. The legacy Dictionary entry and its saved data remain in place.

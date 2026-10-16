@@ -69,7 +69,7 @@ export function familyLayout(nodes: FamilyNode[], endpoints: string[], direction
   if (!visible.size) throw new Error('Choose at least one known family member')
   const root = familyHierarchy(nodes.filter(n => visible.has(n.id)))
   const width = Math.max(340, root.leaves().length * 156 + 130)
-  const height = Math.max(420, root.height * 80 + 120)
+  const height = Math.max(400, root.height * 112 + 160)
   const laidOut = cluster<FamilyNode>().separation(() => 1).size([width - 130, height - 130])(root)
   const points = laidOut.descendants().map(n => ({
     ...n.data, x: n.x + 65, y: direction === 'sources' ? n.y + 65 : height - 65 - n.y, depth: n.depth

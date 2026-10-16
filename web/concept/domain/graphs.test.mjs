@@ -68,3 +68,24 @@ test('empty, unknown, and edited text never inherit an old prepared result', () 
     assert.equal(result.origin, null)
   }
 })
+
+
+test('family layout leaves room for word labels and preserves root-only source graphs', () => {
+  for (const family of Object.values(families)) {
+    const leaves = family.nodes.filter(n => !family.nodes.some(child => child.parent === n.id))
+    const layout = familyLayout(family.nodes, leaves.map(n => n.id))
+    for (const node of layout.nodes) {
+      assert.ok(node.x >= 68 && node.x <= layout.width - 68, '136px word label fits inside canvas')
+      for (const other of layout.nodes) {
+        if (node.id === other.id) continue
+        assert.ok(Math.abs(node.x - other.x) >= 136 || Math.abs(node.y - other.y) >= 80,
+          'word and language labels must not overlap')
+      }
+    }
+  }
+  const root = { id: 'word', parent: null, label: 'computer', lang: 'English', source: '', skipped: [] }
+  const source = { ...root, id: 'component', parent: 'word', label: 'compute', relation: 'component' }
+  const folded = familyLayout([root, source], [root.id], 'sources')
+  assert.deepEqual(folded.nodes.map(n => n.id), ['word'])
+  assert.equal(folded.links.length, 0)
+})

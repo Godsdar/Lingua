@@ -1,40 +1,70 @@
 import { useId, useMemo, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react'
 import { ancestorIds, familyLayout, familyHierarchy, relationNames, syntaxLayout } from '../domain/graphs'
 import type { Family, Token } from '../domain/graphs'
 
 interface FamilyProps { family: Family; word: string }
+
+// Exiting nodes must not remain keyboard targets while their branch fades out.
+function FamilyPoint({ node, selected, lineage, reduced, onSelect }: {
+  node: ReturnType<typeof familyLayout>['nodes'][number]; selected: boolean;
+  lineage: boolean; reduced: boolean | null; onSelect: () => void
+}) {
+  const present = useIsPresent()
+  return <motion.div className="lp-graph-node" inert={!present}
+    initial={reduced ? false : { opacity: 0, x: node.x, y: node.y + 12, scale: .96 }}
+    animate={{ opacity: 1, x: node.x, y: node.y, scale: 1 }}
+    exit={{ opacity: 0, scale: reduced ? 1 : .96 }}
+    transition={{ duration: reduced ? 0 : .32, ease: [.22, 1, .36, 1] }}>
+    <button className={`lp-family-node ${node.parent ? '' : 'is-root'} ${lineage ? 'is-lineage' : ''} ${node.reconstructed ? 'is-reconstructed' : ''}`}
+      aria-pressed={selected} aria-label={`${node.label}, ${node.lang}`} title={`${node.label} · ${node.lang}`} onClick={onSelect}>
+      <span className="lp-node-port" aria-hidden="true" />
+      <span className="lp-form">{node.label}</span><span className="lp-lang">{node.lang}</span>
+    </button>
+  </motion.div>
+}
 
 function FamilyExplorer({ family, word }: FamilyProps) {
   const leaves = useMemo(() => familyHierarchy(family.nodes).leaves().map(n => n.data), [family])
   const sourced = family.direction === 'sources'
   const anchor = leaves.find(n => n.lang === 'English') ?? leaves[0]
   const initial = sourced ? family.nodes.find(n => n.parent === null)! : anchor
+  const defaults = useMemo(() => {
+    const others = leaves.filter(n => n.id !== anchor.id)
+    return [...new Set([anchor.id, ...[others[0], others.at(-1)].filter(n => n !== undefined).map(n => n.id)])]
+  }, [anchor, leaves])
   const [selectedId, setSelected] = useState(initial.id)
-  const [endpoints, setEndpoints] = useState(() => [anchor, ...leaves.filter(n => n.id !== anchor.id).slice(0, 2)].map(n => n.id))
+  const [endpoints, setEndpoints] = useState(defaults)
   const [pathOnly, setPathOnly] = useState(false)
   const [zoom, setZoom] = useState(1)
   const reduced = useReducedMotion()
   const selected = family.nodes.find(n => n.id === selectedId) ?? initial
-  const layout = useMemo(() => familyLayout(family.nodes, pathOnly ? [selected.id] : endpoints, family.direction), [family, endpoints, pathOnly, selected.id])
+  // A dictionary entry can stand alone when all its cited branches are folded.
+  const visibleEndpoints = endpoints.length ? endpoints : [initial.id]
+  const layout = useMemo(() => familyLayout(family.nodes, pathOnly ? [selected.id] : visibleEndpoints, family.direction), [family, endpoints, pathOnly, selected.id])
   const ancestry = useMemo(() => ancestorIds(family.nodes, selected.id), [family, selected.id])
-  const transition = { duration: reduced ? 0 : .32, ease: 'easeInOut' as const }
-  function toggle(id: string) {
-    if (id === anchor.id) return
-    const next = endpoints.includes(id) ? endpoints.filter(n => n !== id) : [...endpoints, id]
+  const trail = useMemo(() => familyHierarchy(family.nodes).descendants().find(n => n.id === selected.id)!.ancestors().reverse(), [family, selected.id])
+  const transition = { duration: reduced ? 0 : .32, ease: [.22, 1, .36, 1] as [number, number, number, number] }
+  function reveal(next: string[]) {
     setEndpoints(next)
     setPathOnly(false)
-    // Collapsing the selected branch returns focus to the source word's lineage.
-    if (!familyLayout(family.nodes, next).nodes.some(n => n.id === selectedId)) setSelected(initial.id)
+    if (!familyLayout(family.nodes, next.length ? next : [initial.id]).nodes.some(n => n.id === selectedId)) setSelected(initial.id)
+  }
+  function toggle(id: string) {
+    if (!sourced && id === anchor.id) return
+    reveal(endpoints.includes(id) ? endpoints.filter(n => n !== id) : [...endpoints, id])
   }
   return <div className="lp-family-explorer">
     <div className="lp-branch-picker" role="group" aria-label="Visible family branches">
-      <span className="lp-label">{sourced ? 'Explore cited sources' : 'Reveal a branch'}</span>
-      {leaves.map(node => <button key={node.id} aria-pressed={endpoints.includes(node.id)}
-        disabled={node.id === anchor.id} onClick={() => toggle(node.id)}>
-        <span aria-hidden="true">{endpoints.includes(node.id) ? '−' : '+'}</span> {sourced ? `${node.label} · ${node.lang}` : node.lang}
+      <span className="lp-label">{sourced ? 'Cited forms' : 'Branches'}</span>
+      {leaves.filter(n => n.id !== (sourced ? initial.id : '')).map(node => <button key={node.id} aria-pressed={endpoints.includes(node.id)}
+        disabled={!sourced && node.id === anchor.id} onClick={() => toggle(node.id)}>
+        <span className="lp-branch-mark" aria-hidden="true">{endpoints.includes(node.id) ? '−' : '+'}</span> {sourced ? `${node.label} · ${node.lang}` : node.lang}
       </button>)}
+      {leaves.length > 3 && <button className="lp-reveal-all" onClick={() => reveal(endpoints.length === leaves.length ? defaults : leaves.map(n => n.id))}>
+        {endpoints.length === leaves.length ? 'Fewer branches' : 'Reveal all'}
+      </button>}
     </div>
     <div className="lp-explorer-grid">
       <div className="lp-graph-panel">
@@ -49,47 +79,52 @@ function FamilyExplorer({ family, word }: FamilyProps) {
             <button aria-label="Zoom in" disabled={zoom >= 1.5} onClick={() => setZoom(z => Math.min(1.5, z + .25))}>+</button>
           </div>
         </div>
-        <div className="lp-graph-scroll" tabIndex={0} role="region" aria-label={`${word} ${sourced ? 'sources' : 'family'}. Scroll horizontally to explore branches.`}>
-          <div style={{ width: layout.width * zoom, height: layout.height * zoom, margin: 'auto' }}>
+        <div className={`lp-graph-scroll lp-family-canvas ${sourced ? 'is-sourced' : ''}`} tabIndex={0} role="region" aria-label={`${word} ${sourced ? 'sources' : 'family'}. Scroll horizontally to explore branches.`}>
+          <motion.div className="lp-graph-size" animate={{ width: layout.width * zoom, height: layout.height * zoom }} transition={transition}>
             <div className="lp-graph-stage" style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
-              <svg width={layout.width} height={layout.height} aria-hidden="true">
-                {layout.links.map(({ id, from, to, condensed }) => {
-                  const active = ancestry.has(id) && ancestry.has(from.id)
-                  const bend = (from.y + to.y) / 2
-                  const sign = sourced ? -1 : 1
-                  return <g key={id}><motion.path
-                    initial={reduced ? false : { opacity: 0, ...(!condensed && { pathLength: 0 }) }}
-                    animate={{ d: `M${from.x},${from.y - sign * 24} C${from.x},${bend} ${to.x},${bend} ${to.x},${to.y + sign * 24}`, opacity: active ? 1 : .48, ...(!condensed && { pathLength: 1 }) }}
-                    transition={transition} stroke={active ? 'var(--lp-accent)' : 'var(--lp-muted)'}
-                    strokeWidth={active ? 2.6 : 1.4} strokeDasharray={condensed ? '4 5' : undefined} fill="none" />
-                    {sourced && to.relation && <text className="lp-arc-label" x={(from.x + to.x) / 2 + 8} y={bend}>{to.relation}</text>}
-                  </g>
-                })}
+              <svg width={layout.width} height={layout.height} aria-hidden="true" className="lp-family-branches">
+                <AnimatePresence initial={false}>
+                  {layout.links.map(({ id, from, to, condensed }) => {
+                    const active = ancestry.has(id) && ancestry.has(from.id)
+                    const bend = (from.y + to.y) / 2
+                    const sign = sourced ? -1 : 1
+                    const d = `M${from.x},${from.y - sign * 32} C${from.x},${bend} ${to.x},${bend} ${to.x},${to.y + sign * 32}`
+                    return <motion.g key={id} initial={reduced ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transition}>
+                      <motion.path initial={false} animate={{ d, opacity: active && !condensed ? .12 : 0 }} transition={transition}
+                        stroke="var(--lp-accent)" strokeWidth={9} fill="none" />
+                      <motion.path initial={reduced || condensed ? false : { pathLength: 0 }}
+                        animate={{ d, opacity: active ? 1 : .55, strokeWidth: active ? 2.5 : Math.max(1.1, 2.4 - to.depth * .35), ...(!condensed && { pathLength: 1 }) }}
+                        transition={transition} stroke={active ? 'var(--lp-accent)' : 'var(--lp-muted)'}
+                        strokeLinecap="round" strokeDasharray={condensed ? '3 7' : undefined} fill="none" />
+                      {sourced && to.relation && <motion.text className="lp-arc-label" initial={false}
+                        animate={{ x: (from.x + to.x) / 2 + 8, y: bend }} transition={transition}>{to.relation}</motion.text>}
+                    </motion.g>
+                  })}
+                </AnimatePresence>
               </svg>
-              {layout.nodes.map(node => <motion.div key={node.id} className="lp-graph-node"
-                initial={reduced ? false : { opacity: 0, x: node.x, y: node.y + 10 }}
-                animate={{ opacity: 1, x: node.x, y: node.y }} transition={transition}>
-                <button className={`lp-family-node ${node.parent ? '' : 'is-root'}`}
-                  aria-pressed={selected.id === node.id} aria-label={`${node.label}, ${node.lang}`}
-                  onClick={() => setSelected(node.id)}>
-                  <span className="lp-form">{node.label}</span><span className="lp-lang">{node.lang}</span>
-                </button>
-              </motion.div>)}
+              <AnimatePresence initial={false}>
+                {layout.nodes.map(node => <FamilyPoint key={node.id} node={node} selected={selected.id === node.id}
+                  lineage={ancestry.has(node.id)} reduced={reduced} onSelect={() => setSelected(node.id)} />)}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         </div>
-        <p className="lp-graph-legend"><span>{sourced ? 'Selected word above · cited sources below' : 'Ancestors below · relatives above'}</span><span>┄ condensed history</span><span>* reconstructed form</span></p>
+        <div className="lp-graph-legend"><span>{sourced ? 'Word above · cited forms below' : 'Ancestors below · relatives above'}</span><span>┄ omitted stages</span><span>* reconstructed</span></div>
+        <p className="lp-explorer-hint">Choose a form to follow its story. {leaves.length > 1 ? 'Unfold branches above; scroll across wider trees.' : 'This entry has no further cited branches.'}</p>
       </div>
-      <aside className="lp-inspector" aria-live="polite">
-        <div className="lp-label">{selected.reconstructed ? 'Reconstructed form' : sourced ? selected.parent === null ? 'Selected word' : 'Cited source' : 'Selected family member'}</div>
-        <p className="lp-word">{selected.label}</p><p className="lp-label">{selected.lang}</p>
-        <p>{selected.gloss || family.note}</p>
-        {sourced && selected.relation && <p className="lp-label">Relation: {selected.relation}. A component is a word part, not a historical ancestor.</p>}
-        <p className="lp-label">{selected.condensed ? `Condensed lineage: ${selected.skipped.join(' → ')}` : sourced ? 'A form explicitly cited by the dictionary entry.' : 'A sourced form in this word family.'}</p>
-        <a href={selected.source} target="_blank" rel="noreferrer">{sourced ? 'Source entry' : 'Entry'} ↗</a>
-        {selected.edgeSource && <> · <a href={selected.edgeSource} target="_blank" rel="noreferrer">Relation evidence ↗</a></>}
+      <aside className="lp-inspector lp-family-inspector">
+        <div className="lp-section-label">Field note</div>
+        <div aria-live="polite" aria-atomic="true"><p className={`lp-word ${selected.reconstructed ? 'is-reconstructed' : ''}`}>{selected.label}</p><p className="lp-label">{selected.lang}{selected.reconstructed ? ' · reconstructed' : ''}</p></div>
+        <p className="lp-word-gloss">{selected.gloss || family.note}</p>
+        <nav className="lp-lineage-trail" aria-label="Selected lineage">
+          {trail.map(n => <button key={n.id} aria-current={n.id === selected.id ? 'true' : undefined} onClick={() => setSelected(n.data.id)}>{n.data.label}</button>)}
+        </nav>
+        {sourced && selected.relation && <p className="lp-label">Relation: {selected.relation}.{selected.relation === 'component' ? ' A word part, not a historical ancestor.' : ''}</p>}
+        <p className="lp-label">{selected.condensed ? `Omitted stages: ${selected.skipped.join(' → ')}` : sourced ? 'Explicitly cited in the dictionary entry.' : 'A sourced form in this word family.'}</p>
+        <div className="lp-evidence-links"><a href={selected.source} target="_blank" rel="noreferrer">Read the entry ↗</a>
+          {selected.edgeSource && <a href={selected.edgeSource} target="_blank" rel="noreferrer">Relation evidence ↗</a>}</div>
         <details><summary>{sourced ? 'About these sources' : 'About this family'}</summary><p className="lp-label">{family.note}</p><p className="lp-label">{sourced ? 'Revision dated' : 'Checked'} {family.verifiedOn}. {family.attribution}</p></details>
-        <p className="lp-label">Wiktionary · CC BY-SA 4.0 · {sourced ? 'live source lookup' : 'prepared family'}</p>
+        <p className="lp-label lp-attribution">Wiktionary · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a><br />{sourced ? 'Live source lookup · partial history' : 'Curated family · selected relatives'}</p>
       </aside>
     </div>
   </div>

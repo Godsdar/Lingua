@@ -159,3 +159,87 @@ body {margin:0;background:#14151d;color:#c0caf5;font-family:system-ui,sans-serif
 #lingua-concept .lp-family-choices{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;}
 #lingua-concept .lp-family-choices button{border:1px solid var(--lp-line);}
 #lingua-concept .lp-family-choices button[aria-pressed="true"]{background:var(--lp-soft);color:var(--lp-accent);}
+
+/* Night notebook: quiet reading space, botanical curves, evidence at hand. */
+body:has([data-variant]:not([hidden]) .lp[data-theme="light"]){background:#e9ecf2;}
+body:has([data-variant="Reading"]:not([hidden]) .lp[data-theme="tokyo"]),
+body:has([data-variant="Study"]:not([hidden]) .lp[data-theme="tokyo"]){background:#13151f;}
+body:has([data-variant]:not([hidden]) .lp[data-theme="graphite"]){background:#191a1d;}
+.lp-demo-shell{max-width:1260px;margin:18px auto;padding:0 26px;}
+.lp-demo-nav{font-size:12px;}
+body:has([data-variant]:not([hidden]) .lp[data-theme="light"]) .lp-demo-nav,
+body:has([data-variant]:not([hidden]) .lp[data-theme="light"]) .lp-layout-picker button{color:#46536b;}
+#lingua-concept .lp{border:1px solid var(--lp-line);border-radius:16px;padding:26px 36px 28px;font-size:15px;}
+#lingua-concept .lp-shell{max-width:1080px;margin-top:32px;}
+#lingua-concept .lp-header{padding-bottom:20px;border-bottom:1px solid var(--lp-line);}
+#lingua-concept .lp-brand{font-family:Georgia,'Times New Roman',serif;font-size:27px;letter-spacing:-.8px;}
+#lingua-concept .lp-brand img{width:28px;height:28px;}
+#lingua-concept .lp-theme{border:1px solid var(--lp-line);background:transparent;border-radius:24px;}
+#lingua-concept .lp .lp-theme button{border-radius:20px;padding:5px 10px;}
+#lingua-concept .lp .lp-theme button[aria-pressed="true"]{background:var(--lp-soft);box-shadow:none;}
+#lingua-concept .lp-notebook-label{font:11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.6px;color:var(--lp-muted);margin-bottom:10px;}
+#lingua-concept .lp-notebook-label span{color:var(--lp-gold);padding:0 8px;}
+#lingua-concept .lp-intro{font-family:Georgia,'Times New Roman',serif;font-size:38px;line-height:1.2;letter-spacing:-1.1px;margin-bottom:10px;}
+#lingua-concept .lp-sub{font-size:15px;margin-bottom:26px;}
+#lingua-concept .lp-composer{border-block:1px solid var(--lp-line);margin:22px 0 10px;}
+#lingua-concept .lp-composer>summary{padding:12px 2px;color:var(--lp-fg);cursor:pointer;font-size:14px;}
+#lingua-concept .lp-composer>summary .lp-label{margin-left:12px;}
+#lingua-concept .lp-composer-body{padding:12px 6px 8px;}
+#lingua-concept .lp-editor{font-size:23px;}
+#lingua-concept .lp-examples{margin:6px 0;gap:2px;}
+#lingua-concept .lp-status{margin:3px 0 14px;min-height:0;}
+#lingua-concept .lp-section-label{font:11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px;}
+#lingua-concept .lp-reading-hint{text-transform:none;letter-spacing:0;}
+#lingua-concept .lp-source{font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.7;}
+#lingua-concept .lp-lexical-actions{display:flex;align-items:center;flex-wrap:wrap;gap:2px 16px;border:0;margin-top:10px;}
+#lingua-concept .lp-lexical-actions .lp-actions{margin:0;}
+#lingua-concept .lp-lexical-actions p{margin:0;max-width:60ch;}
+#lingua-concept .lp-lexical-actions .lp-live-status{flex-basis:100%;}
+#lingua-concept .lp-tabs{margin:24px 0 20px;gap:26px;}
+#lingua-concept .lp-tabs button{font-size:14px;padding:10px 0;}
+#lingua-concept .lp h3.lp-tree-title{font-family:Georgia,'Times New Roman',serif;font-size:26px;letter-spacing:-.5px;font-weight:400;}
+#lingua-concept .lp-family-explorer{margin-top:16px;}
+#lingua-concept .lp-branch-picker{gap:7px;margin-bottom:16px;}
+#lingua-concept .lp-branch-picker button{padding:5px 12px;border-radius:7px;}
+#lingua-concept .lp-branch-picker button:disabled{opacity:1;}
+#lingua-concept .lp-branch-mark{font-family:ui-monospace,monospace;margin-right:4px;}
+#lingua-concept .lp-branch-picker button.lp-reveal-all{border-color:transparent;text-decoration:underline;text-underline-offset:4px;}
+#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr) 245px;gap:30px;}
+#lingua-concept .lp-family-explorer .lp-graph-toolbar{padding:10px 12px;border:1px solid var(--lp-line);border-radius:12px 12px 0 0;background:var(--lp-surface);}
+#lingua-concept .lp-family-canvas{border:1px solid var(--lp-line);border-top:0;border-radius:0 0 12px 12px;background-image:radial-gradient(circle,color-mix(in srgb,var(--lp-muted) 17%,transparent) .65px,transparent .8px),radial-gradient(ellipse at 50% 95%,color-mix(in srgb,var(--lp-accent) 7%,transparent),transparent 70%);background-size:24px 24px,100% 100%;}
+#lingua-concept .lp-graph-size{margin:auto;position:relative;}
+#lingua-concept .lp-family-branches{overflow:visible;}
+#lingua-concept .lp button.lp-family-node{width:136px;border-radius:9px;padding:9px 5px;background:transparent;border:1px solid transparent;line-height:1.35;}
+#lingua-concept .lp-family-node .lp-form{font:23px/1.25 Georgia,'Times New Roman',serif;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+#lingua-concept .lp-family-node .lp-lang{font-size:11px;letter-spacing:.15px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#lingua-concept .lp-family-node.is-reconstructed .lp-form{font-style:italic;}
+#lingua-concept .lp-family-node.is-root .lp-form{font-size:25px;}
+#lingua-concept .lp button.lp-family-node.is-lineage{color:var(--lp-accent);}
+#lingua-concept .lp button.lp-family-node:hover{border-color:var(--lp-line);background:var(--lp-surface);}
+#lingua-concept .lp button.lp-family-node[aria-pressed="true"]{background:var(--lp-soft);box-shadow:inset 0 -2px var(--lp-accent);border-color:color-mix(in srgb,var(--lp-accent) 35%,transparent);}
+#lingua-concept .lp-node-port{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--lp-muted);bottom:-4px;left:calc(50% - 2.5px);}
+#lingua-concept .lp-family-node.is-lineage .lp-node-port{background:var(--lp-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--lp-accent) 12%,transparent);}
+#lingua-concept .lp-family-node.is-root .lp-node-port{top:-4px;bottom:auto;background:var(--lp-gold);}
+#lingua-concept .is-sourced .lp-node-port{top:-4px;bottom:auto;}
+#lingua-concept .is-sourced .lp-family-node.is-root .lp-node-port{top:auto;bottom:-4px;}
+#lingua-concept .lp-graph-legend{gap:7px 16px;font-size:11px;margin:12px 0 4px;}
+#lingua-concept .lp-explorer-hint{font-size:12px;color:var(--lp-muted);margin:8px 0 16px;}
+#lingua-concept .lp-family-inspector{padding:16px 0 0 23px;}
+#lingua-concept .lp-family-inspector>.lp-section-label{margin:0 0 17px;color:var(--lp-gold);}
+#lingua-concept .lp-family-inspector .lp-word{font:36px/1.2 Georgia,'Times New Roman',serif;letter-spacing:-.6px;margin-bottom:6px;}
+#lingua-concept .lp-family-inspector .lp-word.is-reconstructed{font-style:italic;}
+#lingua-concept .lp-word-gloss{font-size:16px;line-height:1.65;margin-top:14px;}
+#lingua-concept .lp-lineage-trail{border-left:1px solid var(--lp-line);display:flex;flex-direction:column;align-items:start;margin:20px 0;padding-left:12px;gap:3px;}
+#lingua-concept .lp-lineage-trail button{font:16px/1.5 Georgia,'Times New Roman',serif;padding:3px 8px;position:relative;color:var(--lp-muted);}
+#lingua-concept .lp-lineage-trail button::before{content:'';position:absolute;left:-15px;top:14px;width:5px;height:5px;border-radius:50%;background:var(--lp-line);}
+#lingua-concept .lp-lineage-trail button[aria-current="true"]{color:var(--lp-accent);}
+#lingua-concept .lp-lineage-trail button[aria-current="true"]::before{background:var(--lp-accent);}
+#lingua-concept .lp-evidence-links{display:flex;flex-direction:column;align-items:start;gap:7px;font-size:13px;margin:18px 0;}
+#lingua-concept .lp-family-inspector summary{font-size:12px;}
+#lingua-concept .lp-family-inspector .lp-attribution{border-top:1px solid var(--lp-line);margin-top:18px;padding-top:12px;font-size:11px;}
+#lingua-concept .lp-understand{font-size:16px;}
+#lingua-concept .lp[data-layout="study"] .lp-explorer-grid{grid-template-columns:minmax(0,1fr);}
+#lingua-concept .lp[data-layout="study"] .lp-composer>summary .lp-label{display:block;margin:4px 0 0;}
+@media(max-width:900px){#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr) 215px;gap:20px;}#lingua-concept .lp-header>.lp-label{display:none;}#lingua-concept .lp{padding:24px;}}
+@media(max-width:760px){.lp-demo-shell{padding:0 12px;margin:12px auto;}#lingua-concept .lp{padding:20px;}#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr);}#lingua-concept .lp-family-inspector{padding:22px 0 0;}#lingua-concept .lp-intro{font-size:32px;}#lingua-concept .lp-composer>summary .lp-label{display:block;margin:5px 0 0;}#lingua-concept .lp-graph-scroll{scroll-padding-inline:16px;}#lingua-concept .lp-source{font-size:24px;}}
+@media(max-width:420px){#lingua-concept .lp{padding:18px 14px;}#lingua-concept .lp-header{gap:14px;}#lingua-concept .lp-theme{margin-left:0;}#lingua-concept .lp-intro{font-size:30px;}#lingua-concept .lp-notebook-label{font-size:10px;}#lingua-concept .lp-source{font-size:22px;}#lingua-concept .lp-tabs{gap:20px;}#lingua-concept .lp .lp-theme button{padding:5px 8px;}}
