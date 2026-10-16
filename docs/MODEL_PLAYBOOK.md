@@ -10,7 +10,7 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 
 ## Product rules
 
-- Working product name: **Uberlang** (exact casing; owner decision 2026-10-16). Read the [brand brief](OWNER_BRIEF_2026-10-16.md#бренд-для-дальнейшей-работы). Existing technical identifiers remain Lingua; this is not authorization to rename code, repository, domains, accounts or stored data. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
+- Working product name: **Uberlang** (exact casing; owner decision 2026-10-16). Read the [brand brief](OWNER_BRIEF_2026-10-16.md#бренд-для-дальнейшей-работы). The repository is Godsdar/Uberlang (owner-authorized rename). Other technical identifiers remain Lingua; do not rename code, domains, accounts or stored data for branding. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
 - Main flow: sentence or selected expression → meaning/grammar → selected word's origin → note/export.
 - $0 operation. No paid infrastructure/API, accounts, analytics, desktop signing, or mobile release as a shortcut. The local Node backend is authorized by ADR-012; ADR-013 authorizes the free stateless Vercel analysis rollout.
 - `/` is Night notebook. `/concept/` redirects to `/` (ADR-017). The notebook combines prepared examples with explicit live English grammar analysis. Grammar-based sentence readings and explicit Wiktionary lookup support new text (ADR-014); curated examples remain labeled.
@@ -54,7 +54,7 @@ New domain behavior goes into typed modules. Keep colors/spacing out of domain d
 - For visual changes: inspect desktop + narrow viewport, all themes, branch expand/collapse, syntax selection, keyboard focus and reduced motion. Use a real browser; a successful build is not visual verification.
 - For notes/export: edit after analysis; old data must not export as new analysis. Save two occurrences; verify ranges and source text in JSON. Download HTML and retain evidence/attribution.
 - `git diff --check`; update affected docs and a new ADR when a decision changes. Never delete old ADRs.
-- Publish only within the user's authorization; target **Godsdar/Lingua** and Vercel **lingua**. Never touch AURA or another Vercel project. No force pushes or unrelated dependency upgrades.
+- Publish only within the user's authorization; target **Godsdar/Uberlang** and Vercel **lingua**. Never touch AURA or another Vercel project. No force pushes or unrelated dependency upgrades.
 - Final response: changed behavior, checks actually run, remaining limits, demo/files. Do not claim production readiness, live parsing, durable notes or a successful deployment without evidence.
 
 ## Read for the current direction

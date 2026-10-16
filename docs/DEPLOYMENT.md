@@ -23,8 +23,8 @@ separate configuration step. Do not commit `.vercel/`, `.env*`, or access tokens
 
 ## GitHub Pages
 
-Mirror: https://godsdar.github.io/Lingua/
-The repository is named `Godsdar/Lingua`; use that capitalization in Pages paths.
+Mirror: https://godsdar.github.io/Uberlang/
+The repository is named `Godsdar/Uberlang`; use that capitalization in Pages paths.
 The Pages workflow runs tests and typechecking before uploading its web build.
 
 The notebook entry is `web/index.html`; `web/concept/index.html` builds only a compatibility redirect. The old browser adapter and its React/MUI bundle have been removed. Vercel runs tests and typechecking before building; GitHub Pages retains its own equivalent gates.

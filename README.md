@@ -7,10 +7,9 @@
 **Read a sentence. Follow a word. Find its story.**
 
 A language exploration project for meaning, grammar, and word histories.
-The product is **Uberlang**; its existing repository and demo URLs remain under Lingua.
 Built with TypeScript, React, D3, and Motion.
 
-[![CI](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml/badge.svg)](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml)
+[![CI](https://github.com/Godsdar/Uberlang/actions/workflows/ci.yml/badge.svg)](https://github.com/Godsdar/Uberlang/actions/workflows/ci.yml)
 [![Vercel demo](https://img.shields.io/badge/demo-Vercel-111111?logo=vercel&logoColor=white)](https://lingua-lac.vercel.app/)
 [![MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 
@@ -84,8 +83,8 @@ with an exclusive end index. [Workflow and provenance](docs/CONCEPT.md).
 **Node.js 24+ and npm.** The concept requires no API key.
 
 ```sh
-git clone https://github.com/Godsdar/Lingua.git
-cd Lingua
+git clone https://github.com/Godsdar/Uberlang.git
+cd Uberlang
 npm ci
 npm run dev:web
 ```
