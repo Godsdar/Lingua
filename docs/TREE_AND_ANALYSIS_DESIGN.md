@@ -1,4 +1,4 @@
-# Lingua: interaction and analysis design
+# Uberlang: interaction and analysis design
 
 Accepted direction, 2026-10-13. Visual references: Zen Notes and Monkeytype; Tokyo Night, Light, Graphite. This document describes shipped concept behavior and the next implementation gates separately.
 

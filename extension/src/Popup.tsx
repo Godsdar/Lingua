@@ -90,7 +90,7 @@ export default function Popup () {
           bgcolor: 'background.default'
         }}
       >
-        <Typography variant="h6">Lingua · etymology</Typography>
+        <Typography variant="h6">Uberlang · etymology</Typography>
 
         <TextField
           size="small"

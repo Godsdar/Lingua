@@ -57,7 +57,7 @@ async function publicRequest(route: '/v1/analysis' | '/v1/lexicon' | '/v1/etymol
   response.setHeader('X-Content-Type-Options', 'nosniff')
   try {
     if (request.method !== 'POST') { response.setHeader('Allow', 'POST'); throw new ServiceError(405, 'METHOD_NOT_ALLOWED', 'Use POST') }
-    if (!publicOriginAllowed(request.headers.origin, process.env)) throw new ServiceError(403, 'ORIGIN_REJECTED', 'Use the Lingua reading workspace')
+    if (!publicOriginAllowed(request.headers.origin, process.env)) throw new ServiceError(403, 'ORIGIN_REJECTED', 'Use the Uberlang reading workspace')
     if (!/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] ?? '')) throw new ServiceError(415, 'UNSUPPORTED_MEDIA_TYPE', 'Use application/json')
     const body = await readBody(request)
     const { app } = await getService()

@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Lingua — Etymology",
+  "name": "Uberlang — Etymology",
   "version": "0.1.0",
   "description": "See the etymology and Indo-European roots of any word, and where languages meet.",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Lingua — Etymology"
+    "default_title": "Uberlang — Etymology"
   },
   "icons": {
     "16": "icon-16.png",

@@ -1,12 +1,13 @@
 <div align="center">
 
-<img src="web/concept/favicon.svg" width="72" height="72" alt="Lingua logo">
+<img src="web/concept/favicon.svg" width="72" height="72" alt="Uberlang logo">
 
-# Lingua
+# Uberlang
 
 **Read a sentence. Follow a word. Find its story.**
 
 A language exploration project for meaning, grammar, and word histories.
+The product is **Uberlang**; its existing repository and demo URLs remain under Lingua.
 Built with TypeScript, React, D3, and Motion.
 
 [![CI](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml/badge.svg)](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml)
@@ -19,7 +20,7 @@ Built with TypeScript, React, D3, and Motion.
 </div>
 
 > [!NOTE]
-> Lingua is an early personal project. The reading workspace offers **live English grammar analysis**
+> Uberlang is an early personal project. The reading workspace offers **live English grammar analysis**
 > alongside three prepared examples. It uses spaCy, a statistical model that can
 > make mistakes. New sentences receive a grammar-based reading; an explicit word
 > lookup retrieves dictionary senses and supported etymological sources from
@@ -38,7 +39,7 @@ sources. Separate etymologies require a choice; components and inflected forms
 are labelled separately from ancestry. Expanded histories and their revision links
 travel with exported notes. No paid API is required.
 
-[![Lingua word family: sourced ancestors and modern relatives](docs/assets/concept-family@2x.png)](docs/assets/concept-family@2x.png)
+[![Uberlang word family: sourced ancestors and modern relatives](docs/assets/concept-family@2x.png)](docs/assets/concept-family@2x.png)
 
 ## A sentence’s structure
 
@@ -46,7 +47,7 @@ Select a word to inspect its lemma, grammatical features, head, and dependency.
 Explore an expression or a particular occurrence inside longer text, then save
 its explanation and context as a study note.
 
-[![Lingua Study workspace: selected word and contextual dependencies](docs/assets/concept-grammar@2x.png)](docs/assets/concept-grammar@2x.png)
+[![Uberlang Study workspace: selected word and contextual dependencies](docs/assets/concept-grammar@2x.png)](docs/assets/concept-grammar@2x.png)
 
 Both images are fresh **2×, lossless PNG** captures of the actual interface.
 Click an image to inspect it at full resolution.
@@ -71,7 +72,7 @@ convert roots into session notes. Old `/concept/` links open the home page, and
 
 The concept demonstrates simple syntax, the present perfect progressive, and a
 relative clause. Choose **Analyze sentence** to parse your own English sentence. Only that sentence
-is sent to Lingua; no third-party inference service is used. The separate lexical
+is sent to Uberlang; no third-party inference service is used. The separate lexical
 lookup sends only the selected headword to Wiktionary. Dictionary senses are
 alternatives, and a grammar-based reading cannot resolve intent, irony or ambiguity.
 Unsupported histories remain explicitly unavailable.

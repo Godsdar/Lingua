@@ -17,7 +17,7 @@ and private Python model. No paid inference service is required.
 - `fixtures.mjs`: three handcrafted sentence analyses and two curated families.
 - `domain/*.ts`: pure graph validation/layout, occurrence resolution, and report document scoping.
 - `components/explorers.tsx`: typed React family and dependency explorers using D3 and Motion.
-- `favicon.svg`: Lingua’s initial-letter and leaf mark.
+- `favicon.svg`: Uberlang’s initial-letter and leaf mark.
 
 There are no external scripts, fonts or analytics. The CSP permits same-origin
 API calls. Editing cancels requests and invalidates previous results. Prepared

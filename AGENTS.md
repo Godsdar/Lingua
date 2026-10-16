@@ -8,6 +8,12 @@ learned by reading the repo, it does not belong here.
 
 Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies to all models, including Sol medium, and gives task routing, product invariants, checks and release limits. For the reading UX, ADR-011 and TREE_AND_ANALYSIS_DESIGN.md are the current direction.
 
+## Product name
+
+The visible brand is **Uberlang** (only U uppercase). Use it in UI, page titles,
+README and new exports. Repository/domain/package/API/storage identifiers remain
+Lingua/lingua; do not rename or migrate them for branding. See the owner brief.
+
 ## Current web entry (ADR-017)
 
 Night notebook is the sole published web UI at `/` (`web/index.html`). The old

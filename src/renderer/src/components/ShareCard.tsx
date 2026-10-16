@@ -41,7 +41,7 @@ function drawCard (
 
   ctx.fillStyle = ink
   ctx.font = '700 44px -apple-system, Segoe UI, Roboto, sans-serif'
-  ctx.fillText('Lingua', 80, 130)
+  ctx.fillText('Uberlang', 80, 130)
   ctx.fillStyle = muted
   ctx.font = '400 30px -apple-system, Segoe UI, Roboto, sans-serif'
   ctx.fillText('etymology · shared roots', 80, 175)
@@ -119,7 +119,7 @@ export default function ShareCard (props: Props) {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `lingua-${props.word.toLowerCase()}.png`
+      link.download = `uberlang-${props.word.toLowerCase()}.png`
       link.click()
       URL.revokeObjectURL(url)
     }, 'image/png')
@@ -149,7 +149,7 @@ export default function ShareCard (props: Props) {
           sx={{ width: '100%', borderRadius: 2, display: 'block', bgcolor: 'background.paper' }}
         />
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          Post the image anywhere, or copy a link back to Lingua.
+          Post the image anywhere, or copy a link back to Uberlang.
         </Typography>
       </DialogContent>
       <DialogActions>

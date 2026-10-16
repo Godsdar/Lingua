@@ -42,7 +42,7 @@ export async function buildApp(config: Config, dependencies: {
   const apiSecurity = [{ bearerAuth: [] }]
 
   await app.register(helmet)
-  await app.register(swagger, { openapi: { info: { title: 'Lingua API', version: '1.0.0', description: 'English language analysis and opt-in live translation. Capabilities identify the configured engine.' }, components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } } } })
+  await app.register(swagger, { openapi: { info: { title: 'Uberlang API', version: '1.0.0', description: 'English language analysis and opt-in live translation. Capabilities identify the configured engine.' }, components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } } } })
   await app.register(rateLimit, { max: config.rateMax, timeWindow: 60000, cache: 5000 })
   app.addHook('onRequest', async (request, reply) => {
     reply.header('X-Request-Id', request.id).header('Cache-Control', 'no-store')

@@ -1,4 +1,4 @@
-# Lingua implementation playbook
+# Uberlang implementation playbook
 
 For bounded coding tasks, including Sol at medium reasoning. Read this after AGENTS.md. Applies to the entire repository. Follow the user's current request; ask only when a real product decision is missing.
 
@@ -10,10 +10,10 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 
 ## Product rules
 
-- Name: **Lingua**. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
+- Working product name: **Uberlang** (exact casing; owner decision 2026-10-16). Read the [brand brief](OWNER_BRIEF_2026-10-16.md#бренд-для-дальнейшей-работы). Existing technical identifiers remain Lingua; this is not authorization to rename code, repository, domains, accounts or stored data. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
 - Main flow: sentence or selected expression → meaning/grammar → selected word's origin → note/export.
 - $0 operation. No paid infrastructure/API, accounts, analytics, desktop signing, or mobile release as a shortcut. The local Node backend is authorized by ADR-012; ADR-013 authorizes the free stateless Vercel analysis rollout.
-- `/` is the live dictionary. `/concept/` combines prepared examples with explicit live English grammar analysis. Grammar-based sentence readings and explicit Wiktionary lookup support new text (ADR-014); curated examples remain labeled.
+- `/` is Night notebook. `/concept/` redirects to `/` (ADR-017). The notebook combines prepared examples with explicit live English grammar analysis. Grammar-based sentence readings and explicit Wiktionary lookup support new text (ADR-014); curated examples remain labeled.
 - Repeated words are separate occurrences. Keep exact text and UTF-16 `[start,end)` offsets. Editing invalidates old results.
 - Syntax, morphology, meaning, translation and etymology are distinct layers. Never infer ancestry from similar spelling, meaning, translation, or nearby nodes.
 - Preserve sources, reconstruction `*`, omitted stages and CC BY-SA attribution in UI and reports.
@@ -60,3 +60,7 @@ New domain behavior goes into typed modules. Keep colors/spacing out of domain d
 ## Read for the current direction
 
 `docs/TREE_AND_ANALYSIS_DESIGN.md` → `docs/decisions/ADR-011-progressive-language-exploration.md` → `docs/CONCEPT.md`. Use `docs/reviews/2026-10-13-architecture.md` for remaining risks, and `docs/PRODUCT_SPEC.md` for the wider roadmap. Historical Atlas styling applies to the dictionary, not the reading concept.
+
+## Owner clarification 2026-10-16
+
+Read [the owner brief](OWNER_BRIEF_2026-10-16.md) for the working name Uberlang, brand direction and clarified product priority: self-directed language learners, curiosity, and a coherent tree aesthetic. It takes precedence over older grammar-first framing. The legacy Dictionary web shell was retired by the owner’s later request (ADR-017); do not restore it. Existing implementation and privacy rules still apply.

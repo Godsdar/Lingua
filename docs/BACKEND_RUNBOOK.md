@@ -1,4 +1,4 @@
-# Lingua API runbook
+# Uberlang API runbook
 
 Node.js 24+; production baseline is Node 24 LTS. Install with `npm ci`.
 The public reading workspace uses fixed Node gateway routes on Vercel; the

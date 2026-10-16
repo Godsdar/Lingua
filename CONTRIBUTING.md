@@ -1,4 +1,4 @@
-# Contributing to Lingua
+# Contributing to Uberlang
 
 Keep changes focused and include a reproducible input and expected result.
 Distinguish live dictionary behavior from prepared concept data. New historical

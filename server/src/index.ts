@@ -17,6 +17,6 @@ try {
   process.once('SIGTERM', () => { void stop() })
   await app.listen({ host: config.host, port: config.port })
 } catch {
-  console.error('Lingua API failed to start. Check configuration and port availability.')
+  console.error('Uberlang API failed to start. Check configuration and port availability.')
   process.exitCode = 1
 }
