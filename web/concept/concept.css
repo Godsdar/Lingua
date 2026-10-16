@@ -140,3 +140,11 @@ body {margin:0;background:#14151d;color:#c0caf5;font-family:system-ui,sans-serif
 #lingua-concept .lp-dependency-details {margin:18px 0;}
 #lingua-concept .lp[data-layout="study"] .lp-explorer-grid {grid-template-columns:minmax(0,1fr);}
 @media(max-width:760px){#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr);}}
+
+#lingua-concept .lp-live-status{font-size:12px;color:var(--lp-accent);margin:8px 0;max-width:70ch;overflow-wrap:anywhere;}
+#lingua-concept .lp-live-status:empty{display:none;}
+#lingua-concept .lp-privacy{max-width:76ch;margin-top:8px;}
+#lingua-concept button[hidden]{display:none!important;}
+#lingua-concept .lp-model-notes{font-size:12px;color:var(--lp-muted);max-width:76ch;margin:8px 0 12px;}
+#lingua-concept .lp-model-notes p{margin:6px 0;}
+#lingua-concept .lp-model-notes ul{padding-left:18px;margin:6px 0;}

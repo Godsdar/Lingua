@@ -1,6 +1,36 @@
 # English sentence engine evaluation
 
-Status: evaluation plan, 2026-10-13. No candidate has been benchmarked or selected. No hosting or API costs are authorized.
+Status: **spaCy selected for the first live English grammar pilot, 2026-10-16**. No paid hosting or API costs are authorized. This is a measured adapter baseline, not a linguistic accuracy certification.
+
+## Selected engine and evidence
+
+Use a private Python function alongside the Node gateway: **spaCy 3.8.7 + en_core_web_sm 3.8.0**, both MIT. The model is installed during the build from the upstream release wheel; requests never download a model or call a third-party language API. The Node gateway handles browser submissions and deadlines; the Python endpoint requires the server-only bearer credential. Grammar and morphology are live. Meaning and etymology remain separate layers and are not inferred from a dependency tree.
+
+- [Model card and license](https://spacy.io/models/en#en_core_web_sm); exact [model metadata](https://github.com/explosion/spacy-models/blob/master/meta/en_core_web_sm-3.8.0.json).
+- Model wheel: **12.2 MiB** download. Resolved Python 3.12 Linux x86_64 dependencies including the model: **271 MiB installed** in a clean target directory. This is below the documented [Vercel Python function 500 MB uncompressed limit](https://vercel.com/docs/functions/runtimes/python). The final deployment bundle must still be checked: Node modules and build outputs must not enter the Python bundle.
+- Local measurements on macOS arm64, Python 3.12.14: first import/load/parse **1.70 seconds** on the first measured run; subsequent fresh-process run with filesystem cache **462 ms**. Twenty short sentences: **1.14 ms median** warm parse; peak process RSS approximately **150 MB**. These are developer-machine measurements, not Vercel cold-start or uptime claims.
+- **20/20** short corpus cases passed exact source slices and valid dependency-tree checks, including repeated words, contractions, combining marks, astral characters and extra whitespace. A two-sentence input returns **422 MULTIPLE_SENTENCES**. This is structural validation, not 100% grammatical accuracy.
+- Labels are **spaCy English / OntoNotes-style**, not UD. Preserve `dobj`, `dative`, `poss`, `relcl` and other native labels; only `ROOT` is serialized as `root`. Head IDs are one-based, with zero for the root. Source offsets are UTF-16, end-exclusive.
+- Known quality limits: this small statistical model chooses one interpretation, does not expose calibrated confidence or alternative parses, and can mislabel unusual input (the seedling emoji was tagged PROPN in a measured sentence). All live output carries an uncertainty warning. No claim of reliable semantic interpretation follows from valid heads.
+
+`engine/analyzer.py` is the model adapter. `engine/http_handler.py` is the private HTTP boundary. Exact Python versions are pinned in root `requirements.txt`; `.python-version` selects Python 3.12. Eleven Python tests exercise real parsing, graph rejection, saturation, request validation, authentication and sanitized failures. The semaphore bounds work per process, not globally across serverless instances. Free hosting can pause or throttle when quotas are reached; it provides no application-level SLA.
+
+Reproduce from the repository root with an isolated environment:
+
+```sh
+python3.12 -m venv /tmp/lingua-engine
+/tmp/lingua-engine/bin/python -m pip install -r requirements.txt
+/tmp/lingua-engine/bin/python -m unittest discover -s engine -p 'test_*.py' -v
+/tmp/lingua-engine/bin/python -m scripts.engine-benchmark
+```
+
+The benchmark uses only public synthetic examples and performs no network requests. Re-run after a model/runtime change and measure the actual deployed function separately.
+
+## Alternatives assessed
+
+**UDPipe hosted API:** a live request on 2026-10-16 returned dependency and morphology output from `english-ewt-ud-2.17-251125`, with code-point TokenRange values. It is technically usable, but its [official service terms](https://lindat.mff.cuni.cz/services/udpipe/api-reference.php) require CC BY-NC-SA model compliance, explicit permission for commercial exploitation, and allow submitted data to improve UFAL systems. These restrictions and the third-party text transfer make it unsuitable as the default for Lingua. It is not called by the implementation.
+
+**Browser POS libraries:** not selected. POS tagging alone does not meet the product requirement for dependency heads and morphological features. **LLM/cloud APIs:** no paid provider or anonymous paid proxy is enabled. **Stanza:** not benchmarked in this pilot; its packaging and latency remain unverified.
 
 ## Candidates
 
@@ -45,7 +75,7 @@ Input: document ID, original text, selected UTF-16 `[start,end)`, containing sen
 
 Result: engine/model/version, source sentence range, token IDs + original ranges, lemma/POS/features, head/relation, independent statuses for grammar/meaning/translation/etymology, warnings and provenance. Ambiguous interpretations remain separate. Unknown fields are absent, not guessed. Reject invalid/cyclic heads and stale responses before rendering.
 
-## Decision record to produce
+## Continuing evaluation
 
 For each candidate record exact package/model versions, hardware, warm/cold latency, peak memory, download size, failures, token/range fidelity, morphology and dependency errors, licensing, and cost per 1,000 sentences if applicable. Evaluate explanations separately from syntactic accuracy. Use a linguistically reviewed reference and document disagreements; fixture resemblance is not evidence of general accuracy.
 

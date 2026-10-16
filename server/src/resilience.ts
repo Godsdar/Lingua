@@ -1,6 +1,6 @@
 import { ServiceError } from './errors.ts'
 
-interface GuardOptions { concurrency: number; deadlineMs: number; threshold?: number; cooldownMs?: number; now?: () => number }
+interface GuardOptions { service?: string; concurrency: number; deadlineMs: number; threshold?: number; cooldownMs?: number; now?: () => number }
 
 export class ProviderGuard {
   private options: GuardOptions
@@ -11,9 +11,10 @@ export class ProviderGuard {
   constructor(options: GuardOptions) { this.options = options }
 
   async run<T>(operation: (signal: AbortSignal) => Promise<T>, parent: AbortSignal): Promise<T> {
+    const service = this.options.service ?? 'Translation'
     const now = this.options.now ?? Date.now
     if (parent.aborted) throw new ServiceError(408, 'CANCELLED', 'Request cancelled')
-    if (this.openUntil > now() || this.probing) throw new ServiceError(503, 'PROVIDER_UNAVAILABLE', 'Translation is temporarily unavailable', Math.max(1, Math.ceil((this.openUntil - now()) / 1000)))
+    if (this.openUntil > now() || this.probing) throw new ServiceError(503, 'PROVIDER_UNAVAILABLE', `${service} is temporarily unavailable`, Math.max(1, Math.ceil((this.openUntil - now()) / 1000)))
     if (this.active >= this.options.concurrency) throw new ServiceError(503, 'BUSY', 'Server is at capacity', 1)
     const probe = this.openUntil !== 0
     if (probe) this.probing = true
@@ -25,7 +26,7 @@ export class ProviderGuard {
     const cancelled = new Promise<never>((_resolve, reject) => {
       onAbort = () => reject(parent.aborted
         ? new ServiceError(408, 'CANCELLED', 'Request cancelled')
-        : new ServiceError(504, 'DEADLINE_EXCEEDED', 'Translation exceeded its time budget'))
+        : new ServiceError(504, 'DEADLINE_EXCEEDED', `${service} exceeded its time budget`))
       signal.addEventListener('abort', onAbort, { once: true })
       if (signal.aborted) onAbort()
     })
@@ -45,7 +46,7 @@ export class ProviderGuard {
         if (probe || this.failures >= (this.options.threshold ?? 3)) this.openUntil = now() + (this.options.cooldownMs ?? 30000)
       }
       if (error instanceof ServiceError) throw error
-      throw new ServiceError(503, 'PROVIDER_UNAVAILABLE', 'Translation is temporarily unavailable', 30)
+      throw new ServiceError(503, 'PROVIDER_UNAVAILABLE', `${service} is temporarily unavailable`, 30)
     } finally {
       clearTimeout(timer)
       signal.removeEventListener('abort', onAbort)

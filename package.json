@@ -23,8 +23,10 @@
     "build:server": "vite build --config server/vite.config.ts",
     "start:server": "node server-dist/index.mjs",
     "typecheck:server": "tsc -p tsconfig.server.json",
-    "test:server": "node --test server/test/*.test.ts",
-    "smoke:server": "node server/smoke.mjs && node --test server/socket-smoke.ts"
+    "test:server": "node --no-experimental-require-module --test server/test/*.test.ts",
+    "smoke:server": "node server/smoke.mjs && node --test server/socket-smoke.ts",
+    "dev:api": "node --watch server/src/public-dev.ts",
+    "build:gateway": "vite build --config server/vite.gateway.config.ts"
   },
   "license": "MIT",
   "devDependencies": {
@@ -52,5 +54,8 @@
     "d3-hierarchy": "^3.1.2",
     "fastify": "5.12.7",
     "motion": "^13.5.0"
+  },
+  "overrides": {
+    "light-my-request": "6.6.0"
   }
 }

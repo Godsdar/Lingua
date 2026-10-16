@@ -3,6 +3,10 @@ import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
 
+// Verify the exact ESM entrypoint used by Vercel, not only the standalone server.
+const gateway = await import('../api/analysis.mjs')
+assert.equal(typeof gateway.default, 'function')
+
 // Reserve an available local port; release immediately before starting the child.
 const reservation = createServer()
 await new Promise(resolve => reservation.listen(0, '127.0.0.1', resolve))

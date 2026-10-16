@@ -6,12 +6,14 @@ import swagger from '@fastify/swagger'
 import { translate } from '../../src/core/providers.ts'
 import type { TranslateRequest } from '../../src/shared/types.ts'
 import { analyzeSelection, validateText, type AnalysisInput } from './analysis.ts'
+import { httpParser, liveResult, type Parse } from './live-analysis.ts'
 import { ProviderGuard } from './resilience.ts'
 import { ServiceError } from './errors.ts'
 import type { Config } from './config.ts'
 import { analysisSchema, translationSchema, analysisResponse, translationResponse, errors } from './schemas.ts'
 
 export async function buildApp(config: Config, dependencies: {
+  parse?: Parse
   translate?: typeof translate
   logger?: boolean | { stream: NodeJS.WritableStream }
 } = {}) {
@@ -22,6 +24,8 @@ export async function buildApp(config: Config, dependencies: {
     bodyLimit: 16384, requestTimeout: 10000, connectionTimeout: 15000, keepAliveTimeout: 5000,
     ajv: { customOptions: { removeAdditional: false, coerceTypes: false, useDefaults: false } }
   })
+  const parse = dependencies.parse ?? (config.engineUrl && config.apiKey ? httpParser(config.engineUrl, config.apiKey, process.env.VERCEL_AUTOMATION_BYPASS_SECRET) : undefined)
+  const parsing = new ProviderGuard({ concurrency: 2, deadlineMs: 20000, service: 'Language analysis' })
   const shutdown = new AbortController()
   let draining = false
   const guard = new ProviderGuard({ concurrency: config.concurrency, deadlineMs: config.deadlineMs })
@@ -31,7 +35,7 @@ export async function buildApp(config: Config, dependencies: {
   const apiSecurity = [{ bearerAuth: [] }]
 
   await app.register(helmet)
-  await app.register(swagger, { openapi: { info: { title: 'Lingua API', version: '1.0.0', description: 'Prepared language analysis and opt-in live translation. No live grammar engine.' }, components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } } } })
+  await app.register(swagger, { openapi: { info: { title: 'Lingua API', version: '1.0.0', description: 'English language analysis and opt-in live translation. Capabilities identify the configured engine.' }, components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } } } })
   await app.register(rateLimit, { max: config.rateMax, timeWindow: 60000, cache: 5000 })
   app.addHook('onRequest', async (request, reply) => {
     reply.header('X-Request-Id', request.id).header('Cache-Control', 'no-store')
@@ -63,9 +67,15 @@ export async function buildApp(config: Config, dependencies: {
   app.setNotFoundHandler((request, reply) => reply.code(404).send({ requestId: request.id, error: { code: 'NOT_FOUND', message: 'Route not found' } }))
   app.get('/health/live', { config: { rateLimit: false }, schema: { hide: true } }, async () => ({ status: 'ok' }))
   app.get('/health/ready', { config: { rateLimit: false }, schema: { hide: true } }, async (_request, reply) => reply.code(draining ? 503 : 200).send({ status: draining ? 'draining' : 'ready' }))
-  app.get('/v1/capabilities', { schema: { security: apiSecurity } }, async () => ({ version: 1, analysis: { engine: 'curated-examples', liveGrammar: false, language: 'en' }, translation: { enabled: config.translationEnabled, sendsTextToProvider: true }, limits: { utf16Units: 500, words: 50 }, persistence: false }))
+  app.get('/v1/capabilities', { schema: { security: apiSecurity } }, async () => ({ version: 1, analysis: { engine: parse ? 'spacy' : 'curated-examples', liveGrammar: Boolean(parse), language: 'en' }, translation: { enabled: config.translationEnabled, sendsTextToProvider: true }, limits: { utf16Units: 500, words: 50 }, persistence: false }))
   app.get('/v1/openapi.json', { schema: { hide: true } }, async () => app.swagger())
-  app.post<{ Body: AnalysisInput }>('/v1/analysis', { schema: { security: apiSecurity, body: analysisSchema, response: { 200: analysisResponse, ...errors } } }, async request => ({ requestId: request.id, ...analyzeSelection(request.body) }))
+  app.post<{ Body: AnalysisInput }>('/v1/analysis', { schema: { security: apiSecurity, body: analysisSchema, response: { 200: analysisResponse, ...errors } } }, async request => {
+    const prepared = analyzeSelection(request.body)
+    if (!parse) return { requestId: request.id, ...prepared }
+    const parent = AbortSignal.any([shutdown.signal, cancellations.get(request)!.signal])
+    const raw = await parsing.run(signal => parse(request.body.text, signal), parent)
+    return { requestId: request.id, ...liveResult(request.body, raw) }
+  })
   app.post<{ Body: TranslateRequest }>('/v1/translation', { schema: { security: apiSecurity, body: translationSchema, response: { 200: translationResponse, ...errors } } }, async request => {
     validateText(request.body.text)
     if (!config.translationEnabled) throw new ServiceError(503, 'TRANSLATION_DISABLED', 'Live translation is not enabled')

@@ -58,13 +58,14 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
   targets (`./src/...`). The typecheck scripts pass `--composite false` on purpose.
 
 - The separate reading concept uses theme tokens and prepared data (ADR-010).
-  Its grammar is not a live parser; do not describe it as one.
+  Prepared examples remain labeled. Explicit live analysis uses spaCy through the
+  same-origin Node gateway (ADR-013); never call grammar output semantic evidence.
 
 ## Data & privacy (non-negotiable)
 
 - Etymology/POS/translations come from English Wiktionary under **CC BY-SA** — keep
   the attribution in the UI; never scrape Etymonline.
-- No accounts or product telemetry. The concept remains local; API analysis must
+- No accounts or product telemetry. Input remains local until explicit analysis; API analysis must
   be an explicit submission of selected context. Translation is opt-in on the API.
   Never log user text, query values, credentials, or raw upstream errors.
 
@@ -74,8 +75,18 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
 - HTTP/auth/limits belong in `server/`, not browser-compatible `src/core/`.
 - Propagate cancellation through every provider and fallback; retain bounded concurrency.
 - Prepared analysis must remain marked `prepared`; unsupported text is `unavailable`.
-- Keep Vercel static until a public session/gateway and deployment budget are agreed.
+- ADR-013 authorizes the public stateless /api/analysis gateway on Vercel Hobby.
   Never deploy an anonymous paid-provider proxy or expose the service key to clients.
+
+- Python worker `engine/` requires pinned requirements/model, `python -m unittest
+  engine.test_analyzer engine.test_http_handler -v`; Node tests use injected engines.
+- Do not expose `/api/engine` without its service credential. Only selected sentence
+  context is submitted. spaCy labels are not Universal Dependencies. Unknown meaning
+  and etymology remain unavailable; never fabricate sources or ancestry.
+
+- `light-my-request` is pinned to 6.6.0 because Vercel rejects its newer
+  CJS-to-ESM cookie import (ADR-013). API tests reproduce the runtime flag;
+  do not remove the override based only on local Node success.
 
 ## Gotchas
 

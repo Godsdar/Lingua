@@ -41,3 +41,11 @@ separate `server` Docker target; see [BACKEND_RUNBOOK.md](BACKEND_RUNBOOK.md).
 CI builds and smoke-tests both the compiled Node process and the API container.
 No public API host, service credential, paid plan, or client integration is
 provisioned by this change. Never set `LINGUA_API_KEY` as a public Vite variable.
+
+## Live analysis rollout (2026-10-16)
+
+ADR-013 supersedes the static-only paragraph above for Vercel: `/api/analysis`
+(Node), `/api/engine` (private Python), and `/api/health` deploy with the web app.
+GitHub Pages remains static, with prepared examples; its live-analysis request
+will show a clear unavailable state because Pages does not execute these functions.
+See BACKEND_RUNBOOK.md for credentials, local setup, boundaries and rollback.

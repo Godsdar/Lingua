@@ -1,7 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "npm test && npm run typecheck && npm run build:web",
+  "buildCommand": "npm test && npm run typecheck && npm run build:web && npm run build:gateway",
   "outputDirectory": "web/dist",
-  "installCommand": "npm ci"
+  "installCommand": "npm ci",
+  "functions": {
+    "api/engine.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{node_modules/**,docs/**,web/**,src/**,server/**,out/**,extension/**,.git/**}"
+    },
+    "api/analysis.mjs": {
+      "maxDuration": 30
+    },
+    "api/health.mjs": {
+      "maxDuration": 5
+    }
+  }
 }

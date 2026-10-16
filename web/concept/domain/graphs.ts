@@ -35,7 +35,9 @@ export interface Token {
 export const relationNames: Record<string, string> = {
   nsubj: 'subject', obj: 'direct object', iobj: 'recipient', aux: 'auxiliary',
   det: 'determiner', root: 'sentence root', 'nmod:poss': 'possessor',
-  'acl:relcl': 'relative clause', advmod: 'modifier', cop: 'copula', punct: 'punctuation'
+  'acl:relcl': 'relative clause', advmod: 'modifier', cop: 'copula', punct: 'punctuation',
+  dobj: 'direct object', pobj: 'preposition object', nsubjpass: 'passive subject',
+  auxpass: 'passive auxiliary', relcl: 'relative clause', prep: 'preposition', ROOT: 'sentence root'
 }
 
 /** Validate before traversing: a missing parent or cycle must not hang the UI. */

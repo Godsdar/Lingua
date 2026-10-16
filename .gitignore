@@ -14,3 +14,7 @@ extension/dist/
 .env*
 
 server-dist/
+
+__pycache__/
+.venv/
+*.pyc

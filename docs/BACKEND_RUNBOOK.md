@@ -46,6 +46,7 @@ session or per-user authorization system.
 npm test
 npm run typecheck
 npm run build:server
+npm run build:gateway
 npm run smoke:server
 npm run start:server
 ```
@@ -97,3 +98,51 @@ Release immutable image tags tied to a reviewed Git commit. Test on staging,
 switch traffic only after readiness succeeds, and retain the previous image.
 Rollback routes traffic back to that image; this stage has no database migrations
 or stored user documents to restore. No public API deploy is configured yet.
+
+## Live grammar alpha (ADR-013, 2026-10-16)
+
+The reading UI calls `/api/analysis` only after **Analyze sentence**. The public
+Node adapter exposes only grammar analysis; `/v1/translation` is not exposed by
+this entrypoint. `/api/engine` requires the private `LINGUA_API_KEY`.
+
+Local setup (Python 3.12):
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+export LINGUA_API_KEY="$(openssl rand -hex 32)"
+export LINGUA_ENGINE_URL=http://127.0.0.1:8790
+.venv/bin/python -c 'from http.server import ThreadingHTTPServer; from engine.http_handler import EngineHandler; ThreadingHTTPServer(("127.0.0.1",8790),EngineHandler).serve_forever()'
+# In another terminal with the same two exported variables:
+npm run dev:api
+# In a third terminal:
+npm run dev:web
+```
+
+Open `http://127.0.0.1:5173/concept/`. Vite proxies `/api` to port 8788. The existing
+`dev:server` remains a service-authenticated `/v1` API; set `LINGUA_ENGINE_URL` to
+use the model there. Docker `server` runs Node only: configure a reachable engine
+worker separately; it does not embed Python or silently download a model.
+
+Vercel variables for both Preview and Production: encrypted `LINGUA_API_KEY`,
+`LINGUA_PUBLIC_ORIGIN=https://lingua-lac.vercel.app`. The gateway derives the
+private worker address from Vercel's trusted `VERCEL_URL`, never the Host header.
+Deployment protection, when enabled, requires Vercel's automation bypass secret
+for internal function calls; do not disable protection on unrelated projects.
+Node cloud entrypoints import an explicitly bundled `.mjs` gateway to avoid
+Electron/CommonJS package semantics leaking into the serverless runtime.
+Use `vercel deploy` for preview and `vercel deploy --prod` after validation. The
+Python entrypoint must define a `handler` class for runtime discovery. Exclude
+Node/UI/build assets from the Python bundle to stay below its size limit.
+
+Run `python -m unittest engine.test_analyzer engine.test_http_handler -v` with the
+pinned environment. `python -m scripts.engine-benchmark` records speed/structure,
+not linguistic accuracy. Test production with an invented public sentence, confirm
+`grammar.status=live`, model/version, unavailable meaning, auth rejection at the
+private endpoint, correct-origin enforcement, and note export in a browser.
+
+Limits are per instance (12/minute/IP, two gateway requests, one worker parse),
+not global spend protection. Hobby caps may affect this project's availability;
+shared account limits may affect other projects. Keep the pilot small. Roll back
+to a known static deployment if error/usage limits rise; retain the last good
+Vercel deployment ID. No database migration is involved.

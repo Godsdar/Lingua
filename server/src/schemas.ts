@@ -16,12 +16,13 @@ export const errorSchema = { type: 'object', required: ['requestId', 'error'], p
   requestId: { type: 'string' }, error: { type: 'object', required: ['code', 'message'], properties: { code: { type: 'string' }, message: { type: 'string' } } }
 } }
 const layer = { type: 'object', required: ['status'], properties: {
-  status: { type: 'string', enum: ['prepared', 'unavailable'] }, reason: { type: 'string' },
+  status: { type: 'string', enum: ['prepared', 'live', 'unavailable'] }, reason: { type: 'string' },
   provenance: { type: 'object', additionalProperties: true }, data: { type: 'object', additionalProperties: true }
 } }
 export const analysisResponse = { type: 'object', required: ['requestId', 'schemaVersion', 'documentId', 'contextStart', 'coordinateSystem', 'selection', 'layers'], properties: {
   requestId: { type: 'string' }, schemaVersion: { type: 'integer', const: 1 }, documentId: { type: 'string' }, contextStart: { type: 'integer' }, coordinateSystem: { type: 'string' },
+  warnings: { type: 'array', items: { type: 'string' } },
   selection: { type: 'object', additionalProperties: true }, layers: { type: 'object', properties: { meaning: layer, grammar: layer, etymology: layer } }
 } }
 export const translationResponse = { type: 'object', required: ['requestId', 'text', 'provider'], properties: { requestId: { type: 'string' }, text: { type: 'string' }, provider: { type: 'string' } } }
-export const errors = Object.fromEntries([400, 401, 408, 413, 415, 429, 503, 504].map(code => [code, errorSchema]))
+export const errors = Object.fromEntries([400, 401, 408, 413, 415, 422, 429, 502, 503, 504].map(code => [code, errorSchema]))

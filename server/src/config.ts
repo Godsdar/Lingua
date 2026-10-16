@@ -1,6 +1,7 @@
 export interface Config {
   host: string
   port: number
+  engineUrl?: string
   apiKey?: string
   translationEnabled: boolean
   deadlineMs: number
@@ -24,8 +25,14 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (env.LINGUA_ENABLE_TRANSLATION !== undefined && !['true', 'false'].includes(env.LINGUA_ENABLE_TRANSLATION)) {
     throw new Error('Invalid LINGUA_ENABLE_TRANSLATION')
   }
+  const engineUrl = env.LINGUA_ENGINE_URL
+  if (engineUrl) {
+    const url = new URL(engineUrl)
+    if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))) throw new Error('Engine URL must use HTTPS or local HTTP')
+    if (!apiKey) throw new Error('Engine access requires a service key')
+  }
   return {
-    host, port: integer('PORT', 8787, 65535), apiKey,
+    engineUrl, host, port: integer('PORT', 8787, 65535), apiKey,
     translationEnabled: env.LINGUA_ENABLE_TRANSLATION === 'true',
     deadlineMs: integer('LINGUA_DEADLINE_MS', 8000, 15000),
     concurrency: integer('LINGUA_CONCURRENCY', 8, 64), rateMax: integer('LINGUA_RATE_MAX', 60, 1000)

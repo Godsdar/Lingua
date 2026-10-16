@@ -20,9 +20,10 @@ Built with TypeScript, React, and Electron.
 </div>
 
 > [!NOTE]
-> Lingua is an early personal project. The reading concept uses **three prepared
-> sentence analyses**, not a live NLP engine. The separate dictionary app uses
-> live Wiktionary and translation providers.
+> Lingua is an early personal project. The reading workspace offers **live English grammar analysis**
+> alongside three prepared examples. It uses spaCy, a statistical model that can
+> make mistakes. Meaning explanations and word families still have limited curated
+> coverage. The separate dictionary uses live Wiktionary and translation providers.
 
 ## A word’s family
 
@@ -48,13 +49,15 @@ Click an image to inspect it at full resolution.
 | | Dictionary app | Reading concept |
 |---|---|---|
 | Translation | Live providers, with varying coverage and limits | Prepared English → Russian examples |
-| Analysis | Dictionary POS, glosses, alternatives; up to eight unique words | Prepared lemmas, features, and sentence dependencies |
+| Analysis | Dictionary POS, glosses, alternatives; up to eight unique words | Live English lemmas, features and dependencies; prepared examples available |
 | Etymology | Word/translation paths from Wiktionary | Curated `water` and `mother` families |
 | Notes | Local roots collection, image export, permalinks | Session notes; downloadable Markdown, JSON, and HTML |
 | Interface | Shared React/MUI UI | Reading/Study layouts; Tokyo Night, Light, Graphite |
 
 The concept demonstrates simple syntax, the present perfect progressive, and a
-relative clause. Other text remains selectable but receives no invented analysis.
+relative clause. Choose **Analyze sentence** to parse your own English sentence. Only that sentence
+is sent to Lingua; no third-party inference service is used. Unknown meaning and
+etymology remain explicitly unavailable.
 Notes are cleared on reload; export first to keep them. JSON ranges use UTF-16
 with an exclusive end index. [Workflow and provenance](docs/CONCEPT.md).
 
@@ -116,13 +119,14 @@ web/                   Browser adapter and entry
 web/concept/           Vite concept entry, typed explorers/domain and styles
 src/data/              Shared curated reading examples and sourced families
 server/                Node.js 24 + Fastify API, contracts and provider resilience
+engine/                Pinned Python/spaCy grammar worker and model tests
+api/                   Vercel public gateway and private model entrypoint
 extension/             Chrome MV3 popup and context menu
 docs/                  Specifications, design, architecture, and decisions
 ```
 
-One shared core supports web, Chrome, and Electron. The separate concept loads
-only local assets and makes no dictionary or translation requests. It is a
-workflow reference with typed React graph explorers and pure TypeScript domain modules.
+One shared core supports web, Chrome, and Electron. The reading workspace keeps input local until explicit analysis. Its typed React
+graph explorers consume validated model output with exact token occurrences.
 The editor and report controller are still JavaScript; gradual extraction continues.
 
 ## Backend foundation
@@ -139,10 +143,13 @@ npm run dev:server
 curl http://127.0.0.1:8787/v1/capabilities
 ```
 
-The analysis adapter currently serves the same prepared examples as the concept.
-Unknown inputs return unavailable layers. The public demo does not call this API.
-Live parsing, public session authentication, persistent notes, and production
-hosting are still pending. The API stores no submitted documents or notes.
+The public `/api/analysis` gateway calls a private Python worker running
+**spaCy 3.8.7 + en_core_web_sm 3.8.0 (MIT)**. It accepts one English sentence
+(up to 50 words / 500 UTF-16 units) and exposes no paid translation route.
+Prepared explanations and sourced families remain independent of model output.
+The gateway is stateless; there are no accounts or persistent server notes.
+Vercel Hobby has usage caps and no availability guarantee. See
+[the live-analysis decision](docs/decisions/ADR-013-live-grammar-alpha.md).
 
 [Architecture](docs/BACKEND_ARCHITECTURE.md) · [Runbook](docs/BACKEND_RUNBOOK.md) ·
 [Backend decision](docs/decisions/ADR-012-node-backend.md)
@@ -162,8 +169,8 @@ does not prove historical kinship. [Data license](https://creativecommons.org/li
 
 ## Roadmap and documentation
 
-Next: compare local/cloud English parsers, preserve contextual token occurrences,
-integrate the chosen layout, expand sourced families, and add durable notes.
+Next: linguistically review the statistical parser with pilot readers, expand
+sourced families, and add durable local notes.
 Branch disclosure, selected-lineage focus, dependency arcs, and reduced-motion-aware
 transitions are now implemented in the concept.
 
@@ -171,5 +178,6 @@ transitions are now implemented in the concept.
 - [Concept workflow](docs/CONCEPT.md) and [deployment](docs/DEPLOYMENT.md)
 - [Architecture decisions](docs/decisions/), [existing design](docs/DESIGN.md), and [graphics](docs/GRAPHICS.md)
 - [Interaction design](docs/TREE_AND_ANALYSIS_DESIGN.md), [architecture review](docs/reviews/2026-10-13-architecture.md), and [engine evaluation](docs/ENGINE_EVALUATION.md)
+- [First-user launch strategy](docs/LAUNCH_STRATEGY.md)
 - [Model implementation playbook](docs/MODEL_PLAYBOOK.md)
 - [Contribution guide](CONTRIBUTING.md) and [agent rules](AGENTS.md)

@@ -244,3 +244,11 @@
 ## Backend foundation — 2026-10-13
 
 ADR-012 authorizes a Node.js 24 / Fastify backend with prepared analysis, optional translation and request resilience. See BACKEND_ARCHITECTURE.md and BACKEND_RUNBOOK.md. This supersedes earlier no-backend planning, but does not activate paid hosting, public browser access, live grammar or account synchronization.
+
+## Live English grammar alpha — 2026-10-16
+
+ADR-013 adds explicit sentence-level spaCy parsing via Node/Python Vercel functions.
+It supplies statistical morphology and dependencies; semantic explanations and
+word families retain their independent curated/unavailable status. The first-user
+pilot must evaluate correctness/usefulness with actual reader sentences before
+broader promotion. No paid API, subscription, persistence or account system added.

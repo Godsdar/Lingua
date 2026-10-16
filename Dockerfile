@@ -17,6 +17,7 @@ RUN npm test \
  && npm run build \
  && npm run build:ext \
  && npm run build:server \
+ && npm run build:gateway \
  && npm run smoke:server
 
 # ---- server-build: compile the standalone API ----
