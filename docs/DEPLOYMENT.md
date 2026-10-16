@@ -2,7 +2,9 @@
 
 ## Vercel
 
-Production notebook: https://lingua-lac.vercel.app/
+Production notebook: https://uberlang.vercel.app/
+The branded domain is attached to the existing `lingua` project (same project ID).
+The former `lingua-lac.vercel.app` address remains available for compatibility.
 Old `/concept/` and `/concept/index.html` links redirect to the notebook.
 
 `vercel.json` installs with `npm ci`, runs tests/typechecks and builds the web

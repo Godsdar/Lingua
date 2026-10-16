@@ -10,7 +10,7 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 
 ## Product rules
 
-- Working product name: **Uberlang** (exact casing; owner decision 2026-10-16). Read the [brand brief](OWNER_BRIEF_2026-10-16.md#бренд-для-дальнейшей-работы). The repository is Godsdar/Uberlang (owner-authorized rename). Other technical identifiers remain Lingua; do not rename code, domains, accounts or stored data for branding. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
+- Working product name: **Uberlang** (exact casing; owner decision 2026-10-16). Read the [brand brief](OWNER_BRIEF_2026-10-16.md#бренд-для-дальнейшей-работы). The repository is Godsdar/Uberlang (owner-authorized rename). The demo is https://uberlang.vercel.app/ on Vercel project lingua (owner-authorized domain). Other technical identifiers remain Lingua; do not rename code, accounts or stored data for branding. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
 - Main flow: sentence or selected expression → meaning/grammar → selected word's origin → note/export.
 - $0 operation. No paid infrastructure/API, accounts, analytics, desktop signing, or mobile release as a shortcut. The local Node backend is authorized by ADR-012; ADR-013 authorizes the free stateless Vercel analysis rollout.
 - `/` is Night notebook. `/concept/` redirects to `/` (ADR-017). The notebook combines prepared examples with explicit live English grammar analysis. Grammar-based sentence readings and explicit Wiktionary lookup support new text (ADR-014); curated examples remain labeled.

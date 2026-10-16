@@ -128,7 +128,9 @@ use the model there. Docker `server` runs Node only: configure a reachable engin
 worker separately; it does not embed Python or silently download a model.
 
 Vercel variables for both Preview and Production: encrypted `LINGUA_API_KEY`,
-`LINGUA_PUBLIC_ORIGIN=https://lingua-lac.vercel.app`. The gateway derives the
+`LINGUA_PUBLIC_ORIGIN=https://uberlang.vercel.app`. Production also sets
+`LINGUA_PREVIOUS_PUBLIC_ORIGIN=https://lingua-lac.vercel.app` to keep existing links
+working. Both are exact origins, with no wildcard or suffix matching. The gateway derives the
 private worker address from Vercel's trusted `VERCEL_URL`, never the Host header.
 Deployment protection, when enabled, requires Vercel's automation bypass secret
 for internal function calls; do not disable protection on unrelated projects.

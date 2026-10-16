@@ -7,7 +7,7 @@ import { ServiceError } from './errors.ts'
 
 export function publicOriginAllowed(origin: string | undefined, env: NodeJS.ProcessEnv): boolean {
   if (!origin) return false
-  const allowed = [env.LINGUA_PUBLIC_ORIGIN, env.VERCEL_URL ? `https://${env.VERCEL_URL}` : undefined]
+  const allowed = [env.LINGUA_PUBLIC_ORIGIN, env.LINGUA_PREVIOUS_PUBLIC_ORIGIN, env.VERCEL_URL ? `https://${env.VERCEL_URL}` : undefined]
   if (!env.VERCEL) allowed.push('http://localhost:5173', 'http://127.0.0.1:5173')
   return allowed.includes(origin)
 }

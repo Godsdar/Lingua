@@ -40,8 +40,12 @@ test('model boundaries reject cycles, wrong slices, missing tokens and forged ra
   assert.equal(liveResult(input, parsed).selection.absoluteStart, 20)
 })
 test('public gateway trusts exact origins and platform IP only in Vercel', () => {
-  const env = { VERCEL: '1', VERCEL_URL: 'build.vercel.app', LINGUA_PUBLIC_ORIGIN: 'https://lingua-lac.vercel.app' }
+  const env = { VERCEL: '1', VERCEL_URL: 'build.vercel.app', LINGUA_PUBLIC_ORIGIN: 'https://uberlang.vercel.app', LINGUA_PREVIOUS_PUBLIC_ORIGIN: 'https://lingua-lac.vercel.app' }
+  assert.equal(publicOriginAllowed('https://uberlang.vercel.app', env), true)
   assert.equal(publicOriginAllowed('https://lingua-lac.vercel.app', env), true)
+  assert.equal(publicOriginAllowed('https://uberlang.vercel.app.evil.test', env), false)
+  assert.equal(publicOriginAllowed('http://uberlang.vercel.app', env), false)
+  assert.equal(publicOriginAllowed('https://build.vercel.app', env), true)
   assert.equal(publicOriginAllowed('https://lingua-lac.vercel.app.evil.test', env), false)
   assert.equal(publicOriginAllowed(undefined, env), false)
   const request = { headers: { 'x-forwarded-for': '198.51.100.1' }, socket: { remoteAddress: '127.0.0.1' } } as unknown as IncomingMessage

@@ -10,10 +10,10 @@ A language exploration project for meaning, grammar, and word histories.
 Built with TypeScript, React, D3, and Motion.
 
 [![CI](https://github.com/Godsdar/Uberlang/actions/workflows/ci.yml/badge.svg)](https://github.com/Godsdar/Uberlang/actions/workflows/ci.yml)
-[![Vercel demo](https://img.shields.io/badge/demo-Vercel-111111?logo=vercel&logoColor=white)](https://lingua-lac.vercel.app/)
+[![Vercel demo](https://img.shields.io/badge/demo-Vercel-111111?logo=vercel&logoColor=white)](https://uberlang.vercel.app/)
 [![MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 
-**[Open Night notebook](https://lingua-lac.vercel.app/)** ·
+**[Open Night notebook](https://uberlang.vercel.app/)** ·
 [Quick start](#quick-start) · [Product specification](docs/PRODUCT_SPEC.md)
 
 </div>
