@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="17" fill="#1a1b26"/>
-  <text x="31" y="49" text-anchor="middle" fill="#c0caf5" font-family="Georgia,serif" font-style="italic" font-size="46">U</text>
+  <text x="17" y="49" fill="#c0caf5" font-family="Georgia,serif" font-style="italic" font-size="49">L</text>
   <ellipse cx="44" cy="18" rx="9" ry="4.5" transform="rotate(-35 44 18)" fill="#9ece6a"/>
 </svg>

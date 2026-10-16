@@ -19,6 +19,11 @@ and existing collections. Window and renderer labels of the retained local
 prototypes use the current brand, but this is not a desktop release.
 Do not rewrite earlier ADRs, historical exports or user text.
 
+## Owner correction
+
+The owner subsequently chose **L** for the logo and favicon. This supersedes
+the initial U-symbol choice above; the product name remains **Uberlang**.
+
 ## Consequences
 Readers see one consistent name while existing links and data remain valid.
 The owner brief and implementation playbook record the exact spelling.
