@@ -15,7 +15,7 @@ export default defineConfig({
     name: 'local-development-csp',
     apply: 'serve',
     // Vite injects a refresh preamble and a websocket client only in development.
-    // Production HTML keeps its restrictive CSP, including connect-src 'none'.
+    // Production HTML keeps its restrictive CSP, with same-origin API access.
     transformIndexHtml: {
       order: 'pre',
       handler: html => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/g, '')
@@ -24,7 +24,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        dictionary: resolve(root, 'index.html'),
+        notebook: resolve(root, 'index.html'),
         concept: resolve(root, 'concept/index.html')
       }
     },

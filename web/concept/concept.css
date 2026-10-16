@@ -96,6 +96,9 @@ body {margin:0;background:#14151d;color:#c0caf5;font-family:system-ui,sans-serif
 .lp-demo-shell {max-width:1180px;margin:24px auto;padding:0 20px;}
 .lp-demo-nav {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:13px;color:#a0acd5;}
 .lp-demo-nav a {color:inherit;text-underline-offset:4px;}
+.lp-legacy-backup {margin:0 0 16px;padding:12px 16px;border:1px solid #51566a;border-radius:12px;font:13px/1.5 system-ui;color:#c7cbd6;background:#1d2029;}
+.lp-legacy-backup button {margin:8px;padding:8px 12px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:8px;cursor:pointer;}
+.lp-legacy-backup button:focus-visible {outline:2px solid #7aa2f7;outline-offset:3px;}
 .lp-layout-picker {display:flex;gap:4px;}
 .lp-layout-picker button {font:inherit;border:0;color:#a0acd5;background:transparent;padding:8px 12px;border-radius:8px;cursor:pointer;}
 .lp-layout-picker button[aria-pressed="true"] {background:#283652;color:#c0caf5;}

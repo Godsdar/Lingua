@@ -1,3 +1,5 @@
+import { passageFromLink } from './domain/entry';
+import { mountRootsBackup } from './roots-backup';
 import { lexicalMatches, parseLexicon, selectedLexicalWord } from './domain/lexicon';
 import { familyLayout } from './domain/graphs';
 import { AnalysisRequestGate, parseAnalysis, readingRanges, sentenceRequest } from './domain/live-analysis';
@@ -8,6 +10,8 @@ import { mountFamily, mountSyntax, unmountExplorers } from './components/explore
 
 (() => {
   const root = document.getElementById('lingua-concept');
+  mountRootsBackup();
+  const linkedPassage = passageFromLink(location.search);
   const fixtures = conceptData.sentences;
   const trees = conceptData.families;
   const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -124,6 +128,7 @@ import { mountFamily, mountSyntax, unmountExplorers } from './components/explore
     ui('input').addEventListener('keydown',()=>{s.selectionSource='editor';});
     ui('input').addEventListener('select',()=>{if(s.pending||s.lexicalPending){stopRequest();s.liveMessage='Selection changed. Choose an action when ready.';renderLiveStatus(app,s);}});
     ui('input').addEventListener('keydown',event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();analyze();}});
+    if(linkedPassage){s.text=linkedPassage;ui('input').value=s.text;s.start=0;s.end=s.text.length;s.view='origins';}
     s.analyzed=s.text;
     resolve(s);if(!s.context && s.text===fixtures.examples[0].text){s.start=19;s.end=24;resolve(s);}render(app,s);
     const observer=new ResizeObserver(()=>{if(s.view==='origins')drawTree(app,s);});observer.observe(app);

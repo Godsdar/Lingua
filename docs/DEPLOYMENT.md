@@ -2,8 +2,8 @@
 
 ## Vercel
 
-Production concept: https://lingua-lac.vercel.app/concept/
-Dictionary app: https://lingua-lac.vercel.app/
+Production notebook: https://lingua-lac.vercel.app/
+Old `/concept/` and `/concept/index.html` links redirect to the notebook.
 
 `vercel.json` installs with `npm ci`, runs tests/typechecks and builds the web
 app plus Node gateway. It deploys static `web/dist`, public analysis/lexicon/health
@@ -23,16 +23,16 @@ separate configuration step. Do not commit `.vercel/`, `.env*`, or access tokens
 
 ## GitHub Pages
 
-Mirror: https://godsdar.github.io/Lingua/concept/
+Mirror: https://godsdar.github.io/Lingua/
 The repository is named `Godsdar/Lingua`; use that capitalization in Pages paths.
 The Pages workflow runs tests and typechecking before uploading its web build.
 
-The concept is a second Vite entry at `web/concept/index.html`, built into `web/dist/concept/`. Vercel runs tests and typechecking before building; GitHub Pages retains its own equivalent gates.
+The notebook entry is `web/index.html`; `web/concept/index.html` builds only a compatibility redirect. The old browser adapter and its React/MUI bundle have been removed. Vercel runs tests and typechecking before building; GitHub Pages retains its own equivalent gates.
 Relative assets work on Vercel’s root and the Pages repository prefix.
 
 ## Verification
 
-Check `/`, `/concept/`, favicon, theme selection, Reading/Study switching, and a
+Check `/`, `/index.html`, `/concept/`, `/concept/index.html`, `?q=` links, favicon, theme selection, Reading/Study switching, and a
 report download. Concept notes are session-only and disappear when reloading.
 
 ## Service backend

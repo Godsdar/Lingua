@@ -1,13 +1,16 @@
 # Reading concept
 
-The reading workspace has a separate entry at `/concept/`. Vite builds
-`web/concept/index.html` into `web/dist/concept/`; the dictionary app continues to use
-its React entry. Prepared examples work offline; live features use the same-origin
-Node gateway and private Python model. No paid inference service is required.
+Night notebook is the only web interface at `/` (`web/index.html`).
+`/concept/` and `/concept/index.html` redirect to the home page with query/hash
+preserved, including under GitHub Pages' repository prefix (ADR-017).
+Prepared examples work offline; live features use the same-origin Node gateway
+and private Python model. No paid inference service is required.
 
 ## Files
 
-- `index.html`: shell, layout picker, asset loading, and CSP.
+- `web/index.html`: shell, layout picker, asset loading, and CSP.
+- `web/concept/index.html`, `redirect.ts`: compatibility redirect only.
+- `roots-backup.ts`: local download of an existing saved-root payload without migration or deletion.
 - `concept.css`: product-scoped presentation and theme tokens.
 - `concept.js`: prepared-result display, session notes,
   serialization, downloads, and workspace switching.

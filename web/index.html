@@ -1,21 +1,35 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://en.wiktionary.org https://api.mymemory.translated.net https://api-free.deepl.com https://api.deepl.com"
-    />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <title>Lingua — every word has a family</title>
-    <meta
-      name="description"
-      content="Type a word and see where it comes from — and who its relatives are across languages."
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore Lingua: selected expressions, grammar, word families, and study notes. Live English grammar on request, with offline prepared examples.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+  <title>Lingua — Night notebook</title>
+  <link rel="icon" type="image/svg+xml" href="./concept/favicon.svg">
+  <link rel="stylesheet" href="./concept/concept.css">
+</head>
+<body>
+  <main class="lp-demo-shell">
+    <nav class="lp-demo-nav" aria-label="Workspace navigation">
+      <span>Night notebook · alpha</span>
+      <div class="lp-layout-picker" role="group" aria-label="Workspace layout">
+        <button data-layout-choice="Reading" aria-pressed="true">Reading</button>
+        <button data-layout-choice="Study" aria-pressed="false">Study</button>
+      </div>
+    </nav>
+    <aside class="lp-legacy-backup" data-roots-backup hidden>
+      <span>Your saved roots from the previous app are still on this device.</span>
+      <button type="button" data-download-roots>Download saved roots</button>
+      <span role="status" data-backup-status></span>
+    </aside>
+<div id="lingua-concept">
+  <div class="lp-variants" aria-label="Lingua design concepts">
+    <section data-variant="Reading" aria-label="Reading workspace"><div class="lp" id="lingua-reading" data-theme="tokyo" data-layout="reading"></div></section>
+    <section data-variant="Study" aria-label="Study workspace" hidden><div class="lp" id="lingua-study" data-theme="tokyo" data-layout="study"></div></section>
+  </div>
+</div>
+  </main>
+  <script type="module" src="./concept/concept.js"></script>
+</body>
 </html>

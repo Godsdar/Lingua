@@ -7,14 +7,13 @@
 **Read a sentence. Follow a word. Find its story.**
 
 A language exploration project for meaning, grammar, and word histories.
-Built with TypeScript, React, and Electron.
+Built with TypeScript, React, D3, and Motion.
 
 [![CI](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml/badge.svg)](https://github.com/Godsdar/Lingua/actions/workflows/ci.yml)
-[![Vercel demo](https://img.shields.io/badge/demo-Vercel-111111?logo=vercel&logoColor=white)](https://lingua-lac.vercel.app/concept/)
+[![Vercel demo](https://img.shields.io/badge/demo-Vercel-111111?logo=vercel&logoColor=white)](https://lingua-lac.vercel.app/)
 [![MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 
-**[Try the reading concept](https://lingua-lac.vercel.app/concept/)** ·
-[Dictionary app](https://lingua-lac.vercel.app/) ·
+**[Open Night notebook](https://lingua-lac.vercel.app/)** ·
 [Quick start](#quick-start) · [Product specification](docs/PRODUCT_SPEC.md)
 
 </div>
@@ -54,14 +53,21 @@ Click an image to inspect it at full resolution.
 
 ## What works today
 
-| | Dictionary app | Reading concept |
-|---|---|---|
-| Translation | Live providers, with varying coverage and limits | Prepared English → Russian examples |
-| Analysis | Dictionary POS, glosses, alternatives; up to eight unique words | Live English lemmas, features and dependencies; prepared examples available |
-| Meaning | Dictionary glosses | Grammar-based sentence reading and live dictionary sense alternatives |
-| Etymology | Word/translation paths from Wiktionary | Live supported source graphs; curated `water` and `mother` families |
-| Notes | Local roots collection, image export, permalinks | Session notes; downloadable Markdown, JSON, and HTML |
-| Interface | Shared React/MUI UI | Reading/Study layouts; Tokyo Night, Light, Graphite |
+| Feature | Night notebook |
+|---|---|
+| Analysis | Live English lemmas, features and dependencies; prepared examples available |
+| Meaning | Grammar-based sentence reading and live dictionary sense alternatives |
+| Etymology | Progressive sourced histories for new words; curated `water` and `mother` families |
+| Translation | Prepared English → Russian examples |
+| Notes | Session notes; downloadable Markdown, JSON, and HTML |
+| Interface | Reading/Study layouts; Tokyo Night, Light, Graphite |
+
+Night notebook is the only published web interface. The old standalone translator,
+language overview and My roots screens have been retired. Existing saved roots
+are kept in browser storage; **Download saved roots** appears when a previous
+collection is present. This downloads an unchanged JSON backup; it does not
+convert roots into session notes. Old `/concept/` links open the home page, and
+`?q=` links prefill text without submitting it.
 
 The concept demonstrates simple syntax, the present perfect progressive, and a
 relative clause. Choose **Analyze sentence** to parse your own English sentence. Only that sentence
@@ -83,10 +89,9 @@ npm ci
 npm run dev:web
 ```
 
-Open Vite’s printed URL for the dictionary app; append `/concept/` for the reading
-concept. Prepared examples work immediately. For live grammar and word lookup,
+Open Vite’s printed URL for Night notebook. Prepared examples work immediately. For live grammar and word lookup,
 start the local gateway/worker using the [runbook](docs/BACKEND_RUNBOOK.md#live-grammar-alpha-adr-013-2026-10-16),
-or use the hosted demo. For Electron development, use `npm run dev`.
+or use the hosted demo.
 
 | Command | Purpose |
 |---|---|
@@ -101,8 +106,10 @@ or use the hosted demo. For Electron development, use `npm run dev`.
 | `npm run build:ext` | Chrome MV3 extension in `extension/dist` |
 | `npm run dist:mac` / `dist:win` / `dist:linux` | Desktop installers in `release` |
 
-Load the extension with Chrome’s **Load unpacked** developer option. Desktop
-packages are unsigned; signed releases and mobile applications remain future work.
+Electron and extension commands maintain the earlier local prototypes for compatibility;
+they are not the current product or published notebook releases. Their shared code
+and separate on-device collections remain intact. Desktop/mobile notebook releases
+are future work.
 
 <details>
 <summary>Docker and deployment</summary>
@@ -128,9 +135,9 @@ src/core/              Browser-compatible dictionary, translation, and tree logi
 src/shared/            Shared types and IPC contracts
 src/main/              Electron main process
 src/preload/           contextBridge adapter
-src/renderer/          React/MUI application UI
-web/                   Browser adapter and entry
-web/concept/           Vite concept entry, typed explorers/domain and styles
+src/renderer/          Earlier Electron UI (not included in the web build)
+web/                   Night notebook home page and web build
+web/concept/           Notebook controller, typed explorers/domain, styles, old-URL redirect
 src/data/              Shared curated reading examples and sourced families
 server/                Node.js 24 + Fastify API, contracts and provider resilience
 engine/                Pinned Python/spaCy grammar worker and model tests
@@ -176,11 +183,11 @@ the same request limits and a shared per-instance page cache. See the
 
 ## Data and privacy
 
-The dictionary app contacts English Wiktionary and translation providers. There
-are no accounts or application telemetry; the roots collection stays on the device.
-MyMemory is the default translation fallback. Desktop users can configure
-`DEEPL_API_KEY` or `LIBRETRANSLATE_URL`; keys must never enter public web or extension
-bundles.
+The notebook keeps text local until an explicit analysis or word lookup. Selected
+sentence context goes to the language engine; selected headwords and historical
+forms go to English Wiktionary through the gateway. There are no accounts or
+application telemetry. Saved-root backups download locally and never leave the
+browser automatically.
 
 Live dictionary data and historical concept data credit **English Wiktionary contributors, CC BY-SA 4.0**.
 Entry links, relation evidence, and condensed paths are retained in reports.
