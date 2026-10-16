@@ -11,9 +11,13 @@ export interface FamilyNode {
   condensed?: boolean
   skipped: string[]
   gloss?: string
+  relation?: 'inherited' | 'borrowed' | 'derived' | 'component'
 }
 
 export interface Family {
+  id?: string
+  label?: string
+  direction?: 'sources'
   nodes: FamilyNode[]
   note: string
   attribution: string
@@ -55,7 +59,7 @@ export function ancestorIds(nodes: FamilyNode[], id: string): Set<string> {
 }
 
 /** Keep ancestors of visible endpoints only. Never invent a connecting edge. */
-export function familyLayout(nodes: FamilyNode[], endpoints: string[]) {
+export function familyLayout(nodes: FamilyNode[], endpoints: string[], direction?: 'sources') {
   const complete = familyHierarchy(nodes)
   const chosen = new Set(endpoints)
   const visible = new Set<string>()
@@ -68,7 +72,7 @@ export function familyLayout(nodes: FamilyNode[], endpoints: string[]) {
   const height = Math.max(420, root.height * 80 + 120)
   const laidOut = cluster<FamilyNode>().separation(() => 1).size([width - 130, height - 130])(root)
   const points = laidOut.descendants().map(n => ({
-    ...n.data, x: n.x + 65, y: height - 65 - n.y, depth: n.depth
+    ...n.data, x: n.x + 65, y: direction === 'sources' ? n.y + 65 : height - 65 - n.y, depth: n.depth
   }))
   const byId = new Map(points.map(n => [n.id, n]))
   const links = points.filter(n => n.parent).map(n => ({

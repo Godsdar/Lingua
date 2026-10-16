@@ -15,6 +15,7 @@ export interface LiveContext {
   status: 'live' | 'prepared'
   provenance: { engine: string; model?: string; version: string; live: boolean }
   warnings: string[]
+  meaning?: { kind: 'structure'; explanation: string; caveat: string }
 }
 
 const record = (value: unknown): value is Record<string, unknown> =>
@@ -73,7 +74,13 @@ export function parseAnalysis(value: unknown, request: AnalysisRequest): LiveCon
   const provenance = grammar.provenance as LiveContext['provenance']
   const warnings = Array.isArray(value.warnings) ? value.warnings.filter((w): w is string => typeof w === 'string') : []
   if (Array.isArray(grammar.warnings)) warnings.push(...grammar.warnings.filter((w): w is string => typeof w === 'string'))
-  return { request, offset: request.contextStart, status: grammar.status, provenance, warnings,
+  let meaning: LiveContext['meaning']
+  const meaningLayer = value.layers.meaning
+  if (record(meaningLayer) && meaningLayer.status === 'live' && record(meaningLayer.data) && meaningLayer.data.kind === 'structure') {
+    if (typeof meaningLayer.data.explanation !== 'string' || typeof meaningLayer.data.caveat !== 'string' || meaningLayer.data.scope !== 'sentence') throw invalid()
+    meaning = { kind: 'structure', explanation: meaningLayer.data.explanation, caveat: meaningLayer.data.caveat }
+  }
+  return { request, offset: request.contextStart, status: grammar.status, provenance, warnings, meaning,
     example: { id: `analysis-${request.documentId}-${request.contextStart}`, text: request.text, tokens, phrases: [], explanation: '', translation: '' } }
 }
 

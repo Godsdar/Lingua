@@ -1,8 +1,9 @@
 # Reading concept
 
-The reading concept is a separate static page at `/concept/`. Vite builds
+The reading workspace has a separate entry at `/concept/`. Vite builds
 `web/concept/index.html` into `web/dist/concept/`; the dictionary app continues to use
-its React entry. No new backend or paid service is required.
+its React entry. Prepared examples work offline; live features use the same-origin
+Node gateway and private Python model. No paid inference service is required.
 
 ## Files
 
@@ -15,17 +16,19 @@ its React entry. No new backend or paid service is required.
 - `components/explorers.tsx`: typed React family and dependency explorers using D3 and Motion.
 - `favicon.svg`: Lingua’s initial-letter and leaf mark.
 
-There are no external scripts, fonts, analytics, or API calls. The CSP disables
-network connections. Editing text invalidates the previous result until the
-user explores it again. Results come from prepared data, not a live parser.
+There are no external scripts, fonts or analytics. The CSP permits same-origin
+API calls. Editing cancels requests and invalidates previous results. Prepared
+examples remain clearly labeled and separate from live model and lexical data.
 
 ## Scope and limits
 
 The English editor accepts up to 6000 UTF-16 units. Above 50 words the concept
 starts with no selected fragment; choose a word or highlight an expression.
-Only exact occurrences inside prepared sentences have grammar. Word origins
-are available for the prepared `water` and `mother` lemmas. An expression has an
-explanation and contextual grammar, not a fabricated single-word ancestry.
+Analyze sentence submits only the selected sentence (50 words / 500 UTF-16 units)
+to the grammar engine. A separate explicit word lookup retrieves dictionary
+senses and supported historical sources for new headwords. An expression has
+contextual grammar, not a fabricated single-word ancestry. The curated `water`
+and `mother` families remain available offline.
 
 Notes are independent snapshots within each workspace and exist only in memory. Theme and view preferences are stored locally; source text is not.
 Reloading clears them. Export first to keep a report. JSON contains full source
@@ -67,9 +70,11 @@ Continue moving the remaining editor/report controller into typed application se
 agreeing on the workflow and sentence-analysis contract. Reuse shared domain
 types and provider adapters; do not turn fixture matching into a live parser.
 
-The updated boundaries are recorded in [ADR-011](decisions/ADR-011-progressive-language-exploration.md). Production CSP still disallows API connections; local Vite development omits CSP to allow its refresh runtime. JSON exports include only source documents referenced by exported notes.
+The interaction design is recorded in ADR-011; ADR-013/014 define current live
+features. Local Vite development omits CSP to allow its refresh runtime. JSON
+exports include only source documents referenced by exported notes.
 
-Prepared data now lives in `src/data/reading-fixtures.mjs`; the web fixture file re-exports it. The opt-in backend shares these examples (ADR-012). The concept still makes no API requests.
+Prepared data now lives in `src/data/reading-fixtures.mjs`; the web fixture file re-exports it. The backend shares these examples (ADR-012).
 
 ## Live grammar alpha — 2026-10-16
 
@@ -78,5 +83,7 @@ same-origin Node gateway. Only the containing sentence is sent, not the whole
 long document. Editing cancels/invalidate results; errors do not impersonate a
 prepared analysis. Notes/reports retain live model provenance independently from
 prepared meaning and sourced etymology. Three local examples still work without
-an API. Semantic interpretation, automatic etymology expansion and durable notes
-remain separate future work.
+an API. Full semantic interpretation and durable notes remain future work. ADR-014 adds
+a grammar-based sentence reading and explicit free lexical lookup. Dictionary
+senses are alternatives; grammatical roles do not identify an intended sense.
+Historical graphs preserve separate origins and only supported source relations.

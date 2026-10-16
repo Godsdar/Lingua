@@ -7,13 +7,15 @@ import { translate } from '../../src/core/providers.ts'
 import type { TranslateRequest } from '../../src/shared/types.ts'
 import { analyzeSelection, validateText, type AnalysisInput } from './analysis.ts'
 import { httpParser, liveResult, type Parse } from './live-analysis.ts'
+import { createLexiconLookup, type LexiconInput, type LookupPages } from './lexicon.ts'
 import { ProviderGuard } from './resilience.ts'
 import { ServiceError } from './errors.ts'
 import type { Config } from './config.ts'
-import { analysisSchema, translationSchema, analysisResponse, translationResponse, errors } from './schemas.ts'
+import { analysisSchema, translationSchema, analysisResponse, translationResponse, errors, lexiconSchema } from './schemas.ts'
 
 export async function buildApp(config: Config, dependencies: {
   parse?: Parse
+  lookupPages?: LookupPages
   translate?: typeof translate
   logger?: boolean | { stream: NodeJS.WritableStream }
 } = {}) {
@@ -26,6 +28,8 @@ export async function buildApp(config: Config, dependencies: {
   })
   const parse = dependencies.parse ?? (config.engineUrl && config.apiKey ? httpParser(config.engineUrl, config.apiKey, process.env.VERCEL_AUTOMATION_BYPASS_SECRET) : undefined)
   const parsing = new ProviderGuard({ concurrency: 2, deadlineMs: 20000, service: 'Language analysis' })
+  const lexical = createLexiconLookup(dependencies.lookupPages)
+  const lexicalGuard = new ProviderGuard({ concurrency: 2, deadlineMs: 7000, service: 'Dictionary lookup' })
   const shutdown = new AbortController()
   let draining = false
   const guard = new ProviderGuard({ concurrency: config.concurrency, deadlineMs: config.deadlineMs })
@@ -75,6 +79,11 @@ export async function buildApp(config: Config, dependencies: {
     const parent = AbortSignal.any([shutdown.signal, cancellations.get(request)!.signal])
     const raw = await parsing.run(signal => parse(request.body.text, signal), parent)
     return { requestId: request.id, ...liveResult(request.body, raw) }
+  })
+  app.post<{ Body: LexiconInput }>('/v1/lexicon', { schema: { security: apiSecurity, body: lexiconSchema } }, async request => {
+    const parent = AbortSignal.any([shutdown.signal, cancellations.get(request)!.signal])
+    const result = await lexicalGuard.run(signal => lexical(request.body, signal), parent)
+    return { requestId: request.id, ...result }
   })
   app.post<{ Body: TranslateRequest }>('/v1/translation', { schema: { security: apiSecurity, body: translationSchema, response: { 200: translationResponse, ...errors } } }, async request => {
     validateText(request.body.text)

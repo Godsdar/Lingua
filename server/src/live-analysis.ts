@@ -1,5 +1,6 @@
 import { conceptData } from '../../src/data/reading-fixtures.mjs'
 import { analyzeSelection, type AnalysisInput } from './analysis.ts'
+import { explainSentence } from './sentence-meaning.ts'
 import { ServiceError } from './errors.ts'
 
 export interface ParsedToken {
@@ -49,7 +50,7 @@ export function liveResult(input: AnalysisInput, raw: unknown) {
   const provenance = { engine: parsed.engine, model: parsed.model, version: parsed.version, modelVersion: parsed.modelVersion, dependencyScheme: parsed.dependencyScheme, license: parsed.license, source: parsed.source, live: true }
   return { ...prepared, warnings: parsed.warnings, layers: {
     ...prepared.layers,
-    meaning: prepared.layers.meaning.status === 'prepared' ? prepared.layers.meaning : { status: 'unavailable', reason: 'No semantic explanation is available. The statistical engine provides grammar, not meaning.' },
+    meaning: prepared.layers.meaning.status === 'prepared' ? prepared.layers.meaning : { status: 'live', provenance: { ...provenance, engine: 'grammar-reading' }, data: explainSentence(parsed.tokens) },
     grammar: { status: 'live', provenance, data: { scope: 'sentence', tokens: parsed.tokens.map(t => ({ ...t, start: input.contextStart + t.start, end: input.contextStart + t.end })) } },
     etymology: family ? { status: 'prepared', provenance: { engine: 'curated-word-families', version: '2026-10-11', live: false }, data: family } : { status: 'unavailable', reason: 'No sourced word family is available for this selection.' }
   } }

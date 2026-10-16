@@ -26,3 +26,14 @@ export const analysisResponse = { type: 'object', required: ['requestId', 'schem
 } }
 export const translationResponse = { type: 'object', required: ['requestId', 'text', 'provider'], properties: { requestId: { type: 'string' }, text: { type: 'string' }, provider: { type: 'string' } } }
 export const errors = Object.fromEntries([400, 401, 408, 413, 415, 422, 429, 502, 503, 504].map(code => [code, errorSchema]))
+
+export const lexiconSchema = {
+  type: 'object', additionalProperties: false, required: ['documentId', 'language', 'word', 'selection'],
+  properties: {
+    documentId: { type: 'string', minLength: 1, maxLength: 100, pattern: '^[a-zA-Z0-9_-]+$' },
+    language: { type: 'string', const: 'en' }, word: { type: 'string', minLength: 1, maxLength: 80 },
+    selection: { type: 'object', additionalProperties: false, required: ['start', 'end'], properties: {
+      start: { type: 'integer', minimum: 0, maximum: 10000000 }, end: { type: 'integer', minimum: 1, maximum: 10000500 }
+    } }
+  }
+}

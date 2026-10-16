@@ -148,3 +148,14 @@ body {margin:0;background:#14151d;color:#c0caf5;font-family:system-ui,sans-serif
 #lingua-concept .lp-model-notes{font-size:12px;color:var(--lp-muted);max-width:76ch;margin:8px 0 12px;}
 #lingua-concept .lp-model-notes p{margin:6px 0;}
 #lingua-concept .lp-model-notes ul{padding-left:18px;margin:6px 0;}
+
+#lingua-concept .lp-lexical-actions{border-top:1px solid var(--lp-line);margin-top:14px;padding-top:2px;}
+#lingua-concept .lp-lexical-actions button[data-action="lexicon"]{border:1px solid var(--lp-line);color:var(--lp-accent);}
+#lingua-concept .lp-dictionary{border-top:1px solid var(--lp-line);margin-top:22px;padding-top:2px;}
+#lingua-concept .lp-dictionary ol{padding-left:22px;}
+#lingua-concept .lp-dictionary li{margin-bottom:16px;padding-left:4px;}
+#lingua-concept .lp-dictionary li p{margin:3px 0 5px;}
+#lingua-concept .lp-dictionary li a{font-size:12px;}
+#lingua-concept .lp-family-choices{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;}
+#lingua-concept .lp-family-choices button{border:1px solid var(--lp-line);}
+#lingua-concept .lp-family-choices button[aria-pressed="true"]{background:var(--lp-soft);color:var(--lp-accent);}

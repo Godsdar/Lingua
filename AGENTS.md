@@ -59,7 +59,9 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
 
 - The separate reading concept uses theme tokens and prepared data (ADR-010).
   Prepared examples remain labeled. Explicit live analysis uses spaCy through the
-  same-origin Node gateway (ADR-013); never call grammar output semantic evidence.
+  same-origin Node gateway (ADR-013); ADR-014 adds a clearly labeled grammar-based
+  reading plus explicit Wiktionary lexical lookup. Never call grammar output
+  proof of word sense or speaker intent.
 
 ## Data & privacy (non-negotiable)
 
@@ -82,7 +84,10 @@ Read [docs/MODEL_PLAYBOOK.md](docs/MODEL_PLAYBOOK.md) before changes. It applies
   engine.test_analyzer engine.test_http_handler -v`; Node tests use injected engines.
 - Do not expose `/api/engine` without its service credential. Only selected sentence
   context is submitted. spaCy labels are not Universal Dependencies. Unknown meaning
-  and etymology remain unavailable; never fabricate sources or ancestry.
+  and etymology remain unavailable when unsupported; never fabricate sources or ancestry.
+- Live lexical graphs preserve separate etymology groups and typed source relations.
+  They are not complete families; never connect cognates as ancestors or silently
+  select a dictionary sense. Keep revision evidence and CC BY-SA in exports.
 
 - `light-my-request` is pinned to 6.6.0 because Vercel rejects its newer
   CJS-to-ESM cookie import (ADR-013). API tests reproduce the runtime flag;

@@ -1,7 +1,8 @@
 # Lingua API runbook
 
 Node.js 24+; production baseline is Node 24 LTS. Install with `npm ci`.
-This API is a local backend foundation. The public concept does not call it yet.
+The public reading workspace uses fixed Node gateway routes on Vercel; the
+standalone `/v1` API is also available for local development and containers.
 
 ## Local development
 
@@ -14,7 +15,9 @@ curl http://127.0.0.1:8787/v1/analysis \
 ```
 
 The selected `water` occurrence receives sourced etymology and prepared grammar.
-Unknown sentences return `unavailable` layers. Editing source text requires a new
+Without a configured model, unknown sentences return `unavailable` grammar.
+With the model, new sentences receive live grammar and a structure-based reading.
+Editing source text requires a new
 document version/ID; the client must discard stale responses. Offsets are UTF-16,
 zero-based and end-exclusive. API analysis currently supports English only.
 
@@ -97,12 +100,12 @@ across replicas. Hosting with sleep is a demo option, not an uptime guarantee.
 Release immutable image tags tied to a reviewed Git commit. Test on staging,
 switch traffic only after readiness succeeds, and retain the previous image.
 Rollback routes traffic back to that image; this stage has no database migrations
-or stored user documents to restore. No public API deploy is configured yet.
+or stored user documents to restore. Public Vercel deployment is described below.
 
 ## Live grammar alpha (ADR-013, 2026-10-16)
 
 The reading UI calls `/api/analysis` only after **Analyze sentence**. The public
-Node adapter exposes only grammar analysis; `/v1/translation` is not exposed by
+Node adapter exposes analysis and explicit lexical lookup; `/v1/translation` is not exposed by
 this entrypoint. `/api/engine` requires the private `LINGUA_API_KEY`.
 
 Local setup (Python 3.12):
@@ -138,7 +141,7 @@ Node/UI/build assets from the Python bundle to stay below its size limit.
 Run `python -m unittest engine.test_analyzer engine.test_http_handler -v` with the
 pinned environment. `python -m scripts.engine-benchmark` records speed/structure,
 not linguistic accuracy. Test production with an invented public sentence, confirm
-`grammar.status=live`, model/version, unavailable meaning, auth rejection at the
+`grammar.status=live`, model/version, structure-based meaning, auth rejection at the
 private endpoint, correct-origin enforcement, and note export in a browser.
 
 Limits are per instance (12/minute/IP, two gateway requests, one worker parse),
@@ -146,3 +149,35 @@ not global spend protection. Hobby caps may affect this project's availability;
 shared account limits may affect other projects. Keep the pilot small. Roll back
 to a known static deployment if error/usage limits rise; retain the last good
 Vercel deployment ID. No database migration is involved.
+
+## Live lexical lookup (ADR-014)
+
+`POST /api/lexicon` is the public gateway; `POST /v1/lexicon` is its authenticated
+service counterpart. Request example:
+
+```json
+{"documentId":"document-v2","language":"en","word":"book","selection":{"start":4,"end":9}}
+```
+
+`word` is the headword/lemma, while `selection` identifies the original occurrence
+in the user's document; their lengths can differ (`books` → `book`). The API
+cannot verify the original document. The frontend binds both to the current
+version and drops stale responses. Only the headword reaches Wiktionary.
+
+Results have independent `definitions` and `etymology` layers with `sourced` or
+`unavailable` status, revision provenance and attribution. Multiple senses and
+origins remain alternatives. Only explicitly supported explicit sources or
+components become graph edges; the extractor is intentionally incomplete.
+
+Lookup deadline: 7 seconds; maximum 2 simultaneous lookups per service instance.
+The shared Wiktionary transport serializes calls with a minimum gap and bounded
+429 retries. Responses are capped at 4 MiB. The public-page cache expires after
+one hour and is capped at 128 pages / 2 million wikitext characters. It stores no
+sentence, document ID or user selection. The same per-instance HTTP rate limits
+apply; they are not distributed anti-abuse protection.
+
+Smoke-test new headwords `book`, `computer` and a nonexistent word. Check separate
+origins, `component` versus historical relations, revision links, unavailable
+state and safe export. Verify a failed lookup leaves grammar usable. Do not
+run bulk load tests against Wikimedia. Restore the preceding Vercel deployment
+if the provider is unavailable or the extractor produces unsupported edges.

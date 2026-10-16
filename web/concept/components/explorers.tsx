@@ -8,38 +8,40 @@ interface FamilyProps { family: Family; word: string }
 
 function FamilyExplorer({ family, word }: FamilyProps) {
   const leaves = useMemo(() => familyHierarchy(family.nodes).leaves().map(n => n.data), [family])
-  const english = leaves.find(n => n.lang === 'English') ?? leaves[0]
-  const [selectedId, setSelected] = useState(english.id)
-  const [endpoints, setEndpoints] = useState(() => leaves.filter(n => ['English', 'German', 'Russian'].includes(n.lang)).map(n => n.id))
+  const sourced = family.direction === 'sources'
+  const anchor = leaves.find(n => n.lang === 'English') ?? leaves[0]
+  const initial = sourced ? family.nodes.find(n => n.parent === null)! : anchor
+  const [selectedId, setSelected] = useState(initial.id)
+  const [endpoints, setEndpoints] = useState(() => [anchor, ...leaves.filter(n => n.id !== anchor.id).slice(0, 2)].map(n => n.id))
   const [pathOnly, setPathOnly] = useState(false)
   const [zoom, setZoom] = useState(1)
   const reduced = useReducedMotion()
-  const selected = family.nodes.find(n => n.id === selectedId) ?? english
-  const layout = useMemo(() => familyLayout(family.nodes, pathOnly ? [selected.id] : endpoints), [family, endpoints, pathOnly, selected.id])
+  const selected = family.nodes.find(n => n.id === selectedId) ?? initial
+  const layout = useMemo(() => familyLayout(family.nodes, pathOnly ? [selected.id] : endpoints, family.direction), [family, endpoints, pathOnly, selected.id])
   const ancestry = useMemo(() => ancestorIds(family.nodes, selected.id), [family, selected.id])
   const transition = { duration: reduced ? 0 : .32, ease: 'easeInOut' as const }
   function toggle(id: string) {
-    if (id === english.id) return
+    if (id === anchor.id) return
     const next = endpoints.includes(id) ? endpoints.filter(n => n !== id) : [...endpoints, id]
     setEndpoints(next)
     setPathOnly(false)
     // Collapsing the selected branch returns focus to the source word's lineage.
-    if (!familyLayout(family.nodes, next).nodes.some(n => n.id === selectedId)) setSelected(english.id)
+    if (!familyLayout(family.nodes, next).nodes.some(n => n.id === selectedId)) setSelected(initial.id)
   }
   return <div className="lp-family-explorer">
     <div className="lp-branch-picker" role="group" aria-label="Visible family branches">
-      <span className="lp-label">Reveal a branch</span>
+      <span className="lp-label">{sourced ? 'Explore cited sources' : 'Reveal a branch'}</span>
       {leaves.map(node => <button key={node.id} aria-pressed={endpoints.includes(node.id)}
-        disabled={node.id === english.id} onClick={() => toggle(node.id)}>
-        <span aria-hidden="true">{endpoints.includes(node.id) ? '−' : '+'}</span> {node.lang}
+        disabled={node.id === anchor.id} onClick={() => toggle(node.id)}>
+        <span aria-hidden="true">{endpoints.includes(node.id) ? '−' : '+'}</span> {sourced ? `${node.label} · ${node.lang}` : node.lang}
       </button>)}
     </div>
     <div className="lp-explorer-grid">
       <div className="lp-graph-panel">
         <div className="lp-graph-toolbar">
           <div role="group" aria-label="Family detail">
-            <button aria-pressed={!pathOnly} onClick={() => setPathOnly(false)}>Family</button>
-            <button aria-pressed={pathOnly} onClick={() => setPathOnly(true)}>Selected path</button>
+            <button aria-pressed={!pathOnly} onClick={() => setPathOnly(false)}>{sourced ? 'Sources' : 'Family'}</button>
+            <button aria-pressed={pathOnly} disabled={sourced && selected.parent === null} onClick={() => setPathOnly(true)}>Selected path</button>
           </div>
           <div role="group" aria-label="Tree scale">
             <button aria-label="Zoom out" disabled={zoom <= .75} onClick={() => setZoom(z => Math.max(.75, z - .25))}>−</button>
@@ -47,18 +49,21 @@ function FamilyExplorer({ family, word }: FamilyProps) {
             <button aria-label="Zoom in" disabled={zoom >= 1.5} onClick={() => setZoom(z => Math.min(1.5, z + .25))}>+</button>
           </div>
         </div>
-        <div className="lp-graph-scroll" tabIndex={0} role="region" aria-label={`${word} family. Scroll horizontally to explore branches.`}>
+        <div className="lp-graph-scroll" tabIndex={0} role="region" aria-label={`${word} ${sourced ? 'sources' : 'family'}. Scroll horizontally to explore branches.`}>
           <div style={{ width: layout.width * zoom, height: layout.height * zoom, margin: 'auto' }}>
             <div className="lp-graph-stage" style={{ width: layout.width, height: layout.height, transform: `scale(${zoom})`, transformOrigin: 'top left' }}>
               <svg width={layout.width} height={layout.height} aria-hidden="true">
                 {layout.links.map(({ id, from, to, condensed }) => {
                   const active = ancestry.has(id) && ancestry.has(from.id)
                   const bend = (from.y + to.y) / 2
-                  return <motion.path key={id}
+                  const sign = sourced ? -1 : 1
+                  return <g key={id}><motion.path
                     initial={reduced ? false : { opacity: 0, ...(!condensed && { pathLength: 0 }) }}
-                    animate={{ d: `M${from.x},${from.y - 24} C${from.x},${bend} ${to.x},${bend} ${to.x},${to.y + 24}`, opacity: active ? 1 : .48, ...(!condensed && { pathLength: 1 }) }}
+                    animate={{ d: `M${from.x},${from.y - sign * 24} C${from.x},${bend} ${to.x},${bend} ${to.x},${to.y + sign * 24}`, opacity: active ? 1 : .48, ...(!condensed && { pathLength: 1 }) }}
                     transition={transition} stroke={active ? 'var(--lp-accent)' : 'var(--lp-muted)'}
                     strokeWidth={active ? 2.6 : 1.4} strokeDasharray={condensed ? '4 5' : undefined} fill="none" />
+                    {sourced && to.relation && <text className="lp-arc-label" x={(from.x + to.x) / 2 + 8} y={bend}>{to.relation}</text>}
+                  </g>
                 })}
               </svg>
               {layout.nodes.map(node => <motion.div key={node.id} className="lp-graph-node"
@@ -73,17 +78,18 @@ function FamilyExplorer({ family, word }: FamilyProps) {
             </div>
           </div>
         </div>
-        <p className="lp-graph-legend"><span>Ancestors below · relatives above</span><span>┄ condensed history</span><span>* reconstructed form</span></p>
+        <p className="lp-graph-legend"><span>{sourced ? 'Selected word above · cited sources below' : 'Ancestors below · relatives above'}</span><span>┄ condensed history</span><span>* reconstructed form</span></p>
       </div>
       <aside className="lp-inspector" aria-live="polite">
-        <div className="lp-label">{selected.reconstructed ? 'Reconstructed ancestor' : 'Selected family member'}</div>
+        <div className="lp-label">{selected.reconstructed ? 'Reconstructed form' : sourced ? selected.parent === null ? 'Selected word' : 'Cited source' : 'Selected family member'}</div>
         <p className="lp-word">{selected.label}</p><p className="lp-label">{selected.lang}</p>
         <p>{selected.gloss || family.note}</p>
-        <p className="lp-label">{selected.condensed ? `Condensed lineage: ${selected.skipped.join(' → ')}` : 'A sourced form in this word family.'}</p>
-        <a href={selected.source} target="_blank" rel="noreferrer">Entry ↗</a>
+        {sourced && selected.relation && <p className="lp-label">Relation: {selected.relation}. A component is a word part, not a historical ancestor.</p>}
+        <p className="lp-label">{selected.condensed ? `Condensed lineage: ${selected.skipped.join(' → ')}` : sourced ? 'A form explicitly cited by the dictionary entry.' : 'A sourced form in this word family.'}</p>
+        <a href={selected.source} target="_blank" rel="noreferrer">{sourced ? 'Source entry' : 'Entry'} ↗</a>
         {selected.edgeSource && <> · <a href={selected.edgeSource} target="_blank" rel="noreferrer">Relation evidence ↗</a></>}
-        <details><summary>About this family</summary><p className="lp-label">{family.note}</p><p className="lp-label">Checked {family.verifiedOn}. {family.attribution}</p></details>
-        <p className="lp-label">Wiktionary · CC BY-SA 4.0 · prepared family</p>
+        <details><summary>{sourced ? 'About these sources' : 'About this family'}</summary><p className="lp-label">{family.note}</p><p className="lp-label">{sourced ? 'Revision dated' : 'Checked'} {family.verifiedOn}. {family.attribution}</p></details>
+        <p className="lp-label">Wiktionary · CC BY-SA 4.0 · {sourced ? 'live source lookup' : 'prepared family'}</p>
       </aside>
     </div>
   </div>
@@ -135,7 +141,7 @@ function mount(container: HTMLElement, element: React.ReactNode) {
   root.render(element)
 }
 export function mountFamily(container: HTMLElement, props: FamilyProps) {
-  mount(container, <FamilyExplorer key={props.word} {...props} />)
+  mount(container, <FamilyExplorer key={`${props.word}:${props.family.id || 'prepared'}`} {...props} />)
 }
 export function mountSyntax(container: HTMLElement, props: SyntaxProps) {
   mount(container, <SyntaxExplorer {...props} />)

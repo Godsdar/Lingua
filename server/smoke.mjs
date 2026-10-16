@@ -6,6 +6,8 @@ import { setTimeout as delay } from 'node:timers/promises'
 // Verify the exact ESM entrypoint used by Vercel, not only the standalone server.
 const gateway = await import('../api/analysis.mjs')
 assert.equal(typeof gateway.default, 'function')
+const lexicalGateway = await import('../api/lexicon.mjs')
+assert.equal(typeof lexicalGateway.default, 'function')
 
 // Reserve an available local port; release immediately before starting the child.
 const reservation = createServer()

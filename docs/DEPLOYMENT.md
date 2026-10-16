@@ -1,13 +1,14 @@
-# Static deployment
+# Deployment
 
 ## Vercel
 
 Production concept: https://lingua-lac.vercel.app/concept/
 Dictionary app: https://lingua-lac.vercel.app/
 
-`vercel.json` uses `npm ci`, `npm run build:web`, and the `web/dist` output.
-There are no server functions or paid inference services. Existing GitHub CI
-checks tests, types, all four builds, and the Docker images.
+`vercel.json` installs with `npm ci`, runs tests/typechecks and builds the web
+app plus Node gateway. It deploys static `web/dist`, public analysis/lexicon/health
+functions and the private Python model. No paid inference service is used.
+GitHub CI checks tests, types, all surfaces, the Python model and Docker images.
 
 To publish using your own Vercel account:
 
@@ -34,18 +35,17 @@ Relative assets work on Vercel’s root and the Pages repository prefix.
 Check `/`, `/concept/`, favicon, theme selection, Reading/Study switching, and a
 report download. Concept notes are session-only and disappear when reloading.
 
-## Opt-in backend (ADR-012)
+## Service backend
 
-The static Vercel/Pages sites do not start the new API. Run it locally or use the
-separate `server` Docker target; see [BACKEND_RUNBOOK.md](BACKEND_RUNBOOK.md).
-CI builds and smoke-tests both the compiled Node process and the API container.
-No public API host, service credential, paid plan, or client integration is
-provisioned by this change. Never set `LINGUA_API_KEY` as a public Vite variable.
+Run the authenticated `/v1` API locally or use the separate `server` Docker target;
+see [BACKEND_RUNBOOK.md](BACKEND_RUNBOOK.md). Vercel uses fixed public gateway
+routes instead of exposing the whole service API. Never set `LINGUA_API_KEY` as
+a public Vite variable. The Docker server image requires a separate Python worker.
 
 ## Live analysis rollout (2026-10-16)
 
-ADR-013 supersedes the static-only paragraph above for Vercel: `/api/analysis`
-(Node), `/api/engine` (private Python), and `/api/health` deploy with the web app.
+ADR-013/014 define the Vercel rollout: `/api/analysis`
+and `/api/lexicon` (Node), `/api/engine` (private Python), and `/api/health` deploy with the web app.
 GitHub Pages remains static, with prepared examples; its live-analysis request
 will show a clear unavailable state because Pages does not execute these functions.
 See BACKEND_RUNBOOK.md for credentials, local setup, boundaries and rollback.

@@ -13,7 +13,7 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 - Name: **Lingua**. English UI. Minimal Zen Notes / Monkeytype direction; themes through CSS tokens.
 - Main flow: sentence or selected expression → meaning/grammar → selected word's origin → note/export.
 - $0 operation. No paid infrastructure/API, accounts, analytics, desktop signing, or mobile release as a shortcut. The local Node backend is authorized by ADR-012; ADR-013 authorizes the free stateless Vercel analysis rollout.
-- `/` is the live dictionary. `/concept/` combines prepared examples with explicit live English grammar analysis. Meaning explanations and two word families remain curated.
+- `/` is the live dictionary. `/concept/` combines prepared examples with explicit live English grammar analysis. Grammar-based sentence readings and explicit Wiktionary lookup support new text (ADR-014); curated examples remain labeled.
 - Repeated words are separate occurrences. Keep exact text and UTF-16 `[start,end)` offsets. Editing invalidates old results.
 - Syntax, morphology, meaning, translation and etymology are distinct layers. Never infer ancestry from similar spelling, meaning, translation, or nearby nodes.
 - Preserve sources, reconstruction `*`, omitted stages and CC BY-SA attribution in UI and reports.
@@ -28,6 +28,7 @@ For bounded coding tasks, including Sol at medium reasoning. Read this after AGE
 | Prepared examples | `src/data/reading-fixtures.mjs` (web re-export) | Source evidence, exact text slices, graph validity |
 | Editor, session notes, reports | `web/concept/concept.js` | Stale results, immutable saved notes, escaped HTML |
 | Live dictionary/translation | `src/core/`, `src/shared/types.ts` | Tests + all three builds |
+| Lexical definitions and historical sources | `server/src/lexicon.ts`, `src/core/wiktionary.ts`, `web/concept/domain/lexicon.ts` | Separate senses/origins, cited revisions, no invented edges, bounded lookup |
 | Statistical language model | `engine/`, `requirements.txt`, `docs/ENGINE_EVALUATION.md` | Python unittest suite, source slices, native labels, no inferred semantics |
 | API contracts, auth, resilience | `server/src/`, `docs/BACKEND_ARCHITECTURE.md` | `npm run test:server`, `typecheck:server`, `build:server`, `smoke:server` |
 | Build/deployment | `web/vite.config.ts`, `.github/workflows/`, `vercel.json` | Both entry URLs, relative assets, production CSP |

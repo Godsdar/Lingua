@@ -22,14 +22,16 @@ Built with TypeScript, React, and Electron.
 > [!NOTE]
 > Lingua is an early personal project. The reading workspace offers **live English grammar analysis**
 > alongside three prepared examples. It uses spaCy, a statistical model that can
-> make mistakes. Meaning explanations and word families still have limited curated
-> coverage. The separate dictionary uses live Wiktionary and translation providers.
+> make mistakes. New sentences receive a grammar-based reading; an explicit word
+> lookup retrieves dictionary senses and supported etymological sources from
+> Wiktionary. Coverage is partial, and senses are not automatically disambiguated.
 
 ## A word’s family
 
-Choose `water` or `mother`, follow its historical path, and reveal related forms
-across languages. Each family includes source links and identifies reconstructed
-forms and omitted historical stages.
+Look up a new word to explore its documented sources, or choose the curated
+`water` and `mother` families to explore relatives across languages. Live graphs
+show supported explicit sources/components; they are not complete word families.
+Distinct origins, source links and reconstructed forms remain visible.
 
 [![Lingua word family: sourced ancestors and modern relatives](docs/assets/concept-family@2x.png)](docs/assets/concept-family@2x.png)
 
@@ -50,14 +52,17 @@ Click an image to inspect it at full resolution.
 |---|---|---|
 | Translation | Live providers, with varying coverage and limits | Prepared English → Russian examples |
 | Analysis | Dictionary POS, glosses, alternatives; up to eight unique words | Live English lemmas, features and dependencies; prepared examples available |
-| Etymology | Word/translation paths from Wiktionary | Curated `water` and `mother` families |
+| Meaning | Dictionary glosses | Grammar-based sentence reading and live dictionary sense alternatives |
+| Etymology | Word/translation paths from Wiktionary | Live supported source graphs; curated `water` and `mother` families |
 | Notes | Local roots collection, image export, permalinks | Session notes; downloadable Markdown, JSON, and HTML |
 | Interface | Shared React/MUI UI | Reading/Study layouts; Tokyo Night, Light, Graphite |
 
 The concept demonstrates simple syntax, the present perfect progressive, and a
 relative clause. Choose **Analyze sentence** to parse your own English sentence. Only that sentence
-is sent to Lingua; no third-party inference service is used. Unknown meaning and
-etymology remain explicitly unavailable.
+is sent to Lingua; no third-party inference service is used. The separate lexical
+lookup sends only the selected headword to Wiktionary. Dictionary senses are
+alternatives, and a grammar-based reading cannot resolve intent, irony or ambiguity.
+Unsupported histories remain explicitly unavailable.
 Notes are cleared on reload; export first to keep them. JSON ranges use UTF-16
 with an exclusive end index. [Workflow and provenance](docs/CONCEPT.md).
 
@@ -73,7 +78,9 @@ npm run dev:web
 ```
 
 Open Vite’s printed URL for the dictionary app; append `/concept/` for the reading
-concept. For Electron development, use `npm run dev`.
+concept. Prepared examples work immediately. For live grammar and word lookup,
+start the local gateway/worker using the [runbook](docs/BACKEND_RUNBOOK.md#live-grammar-alpha-adr-013-2026-10-16),
+or use the hosted demo. For Electron development, use `npm run dev`.
 
 | Command | Purpose |
 |---|---|
@@ -100,9 +107,10 @@ docker run --rm -p 8080:80 lingua-web
 docker build --target ci -t lingua-ci .
 ```
 
-`vercel.json` builds the static web app and concept with `npm run build:web`.
+`vercel.json` tests and builds the web app, Node gateways and private Python worker.
 The Vercel demo is published through the CLI. GitHub Pages remains an automatic
-mirror with tests and typechecking before publication.
+static mirror with tests and typechecking before publication; live endpoints run
+only on Vercel or a configured local backend.
 [Deployment instructions](docs/DEPLOYMENT.md).
 
 </details>
@@ -146,10 +154,13 @@ curl http://127.0.0.1:8787/v1/capabilities
 The public `/api/analysis` gateway calls a private Python worker running
 **spaCy 3.8.7 + en_core_web_sm 3.8.0 (MIT)**. It accepts one English sentence
 (up to 50 words / 500 UTF-16 units) and exposes no paid translation route.
-Prepared explanations and sourced families remain independent of model output.
+The separate `/api/lexicon` route queries the fixed Wiktionary API through a
+throttled adapter. Definitions and source graphs remain independent of grammar.
+Prepared examples still work offline.
 The gateway is stateless; there are no accounts or persistent server notes.
 Vercel Hobby has usage caps and no availability guarantee. See
-[the live-analysis decision](docs/decisions/ADR-013-live-grammar-alpha.md).
+[the live-analysis decision](docs/decisions/ADR-013-live-grammar-alpha.md) and
+[lexical evidence decision](docs/decisions/ADR-014-live-lexical-evidence.md).
 
 [Architecture](docs/BACKEND_ARCHITECTURE.md) · [Runbook](docs/BACKEND_RUNBOOK.md) ·
 [Backend decision](docs/decisions/ADR-012-node-backend.md)
@@ -162,7 +173,7 @@ MyMemory is the default translation fallback. Desktop users can configure
 `DEEPL_API_KEY` or `LIBRETRANSLATE_URL`; keys must never enter public web or extension
 bundles.
 
-Historical concept data credits **English Wiktionary contributors, CC BY-SA 4.0**.
+Live dictionary data and historical concept data credit **English Wiktionary contributors, CC BY-SA 4.0**.
 Entry links, relation evidence, and condensed paths are retained in reports.
 An asterisk means an unattested reconstruction; similar spelling or meaning alone
 does not prove historical kinship. [Data license](https://creativecommons.org/licenses/by-sa/4.0/).
@@ -179,5 +190,6 @@ transitions are now implemented in the concept.
 - [Architecture decisions](docs/decisions/), [existing design](docs/DESIGN.md), and [graphics](docs/GRAPHICS.md)
 - [Interaction design](docs/TREE_AND_ANALYSIS_DESIGN.md), [architecture review](docs/reviews/2026-10-13-architecture.md), and [engine evaluation](docs/ENGINE_EVALUATION.md)
 - [First-user launch strategy](docs/LAUNCH_STRATEGY.md)
+- [Design research: Night notebook and alternatives](docs/DESIGN_RESEARCH_2026-10-16.md)
 - [Model implementation playbook](docs/MODEL_PLAYBOOK.md)
 - [Contribution guide](CONTRIBUTING.md) and [agent rules](AGENTS.md)

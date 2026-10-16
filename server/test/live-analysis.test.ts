@@ -14,14 +14,17 @@ const parsed = { engine: 'spaCy', model: 'en_core_web_sm', version: '3.8.7', war
 ] }
 const input = { documentId: 'version-1', language: 'en' as const, text, contextStart: 20, selection: { start: 0, end: 5 } }
 
-test('live API handles unseen sentences and preserves independent unavailable layers', async t => {
+test('live API handles unseen sentences with structure reading and independently unavailable etymology', async t => {
   const { app } = await buildApp(readConfig({}), { parse: async actual => { assert.equal(actual, text); return parsed } }); t.after(() => app.close())
   const response = await app.inject({ method: 'POST', url: '/v1/analysis', payload: input })
   assert.equal(response.statusCode, 200)
   const data = response.json()
   assert.equal(data.layers.grammar.status, 'live')
   assert.equal(data.layers.grammar.data.tokens[0].start, 20)
-  assert.equal(data.layers.meaning.status, 'unavailable')
+  assert.equal(data.layers.meaning.status, 'live')
+  assert.equal(data.layers.meaning.provenance.engine, 'grammar-reading')
+  assert.equal(data.layers.meaning.data.kind, 'structure')
+  assert.match(data.layers.meaning.data.caveat, /does not resolve word senses/)
   assert.equal(data.layers.etymology.status, 'unavailable')
   assert.equal(data.warnings[0], parsed.warnings[0])
   assert.equal((await app.inject('/v1/capabilities')).json().analysis.liveGrammar, true)

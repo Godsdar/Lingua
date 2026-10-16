@@ -41,8 +41,11 @@ function getService() {
   return service
 }
 
-/** Public, stateless, bounded analysis only. No translation, arbitrary proxy, or paid API. */
-export async function publicAnalysis(request: IncomingMessage, response: ServerResponse) {
+/** Public stateless routes have fixed internal targets, never a user-controlled proxy URL. */
+export const publicAnalysis = (request: IncomingMessage, response: ServerResponse) => publicRequest('/v1/analysis', request, response)
+export const publicLexicon = (request: IncomingMessage, response: ServerResponse) => publicRequest('/v1/lexicon', request, response)
+
+async function publicRequest(route: '/v1/analysis' | '/v1/lexicon', request: IncomingMessage, response: ServerResponse) {
   const cancelled = new AbortController()
   const abort = () => cancelled.abort()
   request.once('aborted', abort)
@@ -56,7 +59,7 @@ export async function publicAnalysis(request: IncomingMessage, response: ServerR
     if (!/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] ?? '')) throw new ServiceError(415, 'UNSUPPORTED_MEDIA_TYPE', 'Use application/json')
     const body = await readBody(request)
     const { app } = await getService()
-    const result = await app.inject({ method: 'POST', url: '/v1/analysis', payload: body,
+    const result = await app.inject({ method: 'POST', url: route, payload: body,
       headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.LINGUA_API_KEY}` },
       remoteAddress: clientAddress(request, process.env), signal: cancelled.signal })
     response.statusCode = result.statusCode

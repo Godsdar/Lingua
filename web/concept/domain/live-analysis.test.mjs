@@ -65,3 +65,13 @@ test('reading text selects exact model tokens in contractions without changing t
   assert.deepEqual(ranges.map(r => r.text), ['Before', 'I', 'ca', "n't", 'go', '.', 'After'])
   for (const range of ranges) assert.equal(text.slice(range.start, range.end), range.text)
 })
+
+test('grammar-based reading retains its uncertainty separately from model tokens', () => {
+  const response = result()
+  response.layers.meaning = { status: 'live', data: { scope: 'sentence', kind: 'structure', explanation: 'The subject is Birds; the action is sing.', caveat: 'This describes predicted structure, not speaker intention.' } }
+  const parsed = parseAnalysis(response, request)
+  assert.equal(parsed.meaning.kind, 'structure')
+  assert.match(parsed.meaning.caveat, /not speaker intention/)
+  delete response.layers.meaning.data.caveat
+  assert.throws(() => parseAnalysis(response, request), /invalid result/)
+})

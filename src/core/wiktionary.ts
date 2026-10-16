@@ -1,7 +1,7 @@
 import type { EtymologyNode, LangCode } from '@shared/types'
 
 const API = 'https://en.wiktionary.org/w/api.php'
-const USER_AGENT = 'Lingua/0.1 (educational Electron app; etymology lookup)'
+const USER_AGENT = 'Lingua/0.1 (https://github.com/Godsdar/Lingua; educational word lookup)'
 
 const SECTION: Record<LangCode, string> = {
   en: 'English',
@@ -72,15 +72,32 @@ const MIN_GAP_MS = 150
 let lastStart = 0
 let chain: Promise<unknown> = Promise.resolve()
 
-function schedule<T> (task: () => Promise<T>): Promise<T> {
+function delay(ms: number, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted()
+  return new Promise((resolve, reject) => {
+    const aborted = () => { clearTimeout(timer); signal?.removeEventListener('abort', aborted); reject(signal?.reason) }
+    const timer = setTimeout(() => { signal?.removeEventListener('abort', aborted); resolve() }, ms)
+    signal?.addEventListener('abort', aborted, { once: true })
+  })
+}
+
+function schedule<T> (task: () => Promise<T>, signal?: AbortSignal): Promise<T> {
   const run = chain.then(async () => {
+    signal?.throwIfAborted()
     const gap = MIN_GAP_MS - (Date.now() - lastStart)
-    if (gap > 0) await new Promise(resolve => setTimeout(resolve, gap))
+    if (gap > 0) await delay(gap, signal)
+    signal?.throwIfAborted()
     lastStart = Date.now()
     return task()
   })
   chain = run.then(() => undefined, () => undefined)
-  return run
+  if (!signal) return run
+  return new Promise((resolve, reject) => {
+    const aborted = () => { signal.removeEventListener('abort', aborted); reject(signal.reason) }
+    signal.addEventListener('abort', aborted, { once: true })
+    void run.then(value => { signal.removeEventListener('abort', aborted); resolve(value) }, error => { signal.removeEventListener('abort', aborted); reject(error) })
+    if (signal.aborted) aborted()
+  })
 }
 
 interface RawResponse {
@@ -90,28 +107,43 @@ interface RawResponse {
   data?: any
 }
 
-async function fetchOnce (params: Record<string, string>): Promise<RawResponse> {
+async function fetchOnce (params: Record<string, string>, parent?: AbortSignal): Promise<RawResponse> {
   const url = `${API}?${new URLSearchParams({ format: 'json', formatversion: '2', redirects: '1', origin: '*', ...params })}`
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 9000)
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT }, signal: controller.signal })
+    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT }, signal: parent ? AbortSignal.any([parent, controller.signal]) : controller.signal })
     const retryAfter = Number(res.headers.get('retry-after')) || 1
     if (!res.ok) {
       await res.body?.cancel().catch(() => undefined)
       return { ok: false, status: res.status, retryAfter }
     }
-    return { ok: true, status: res.status, retryAfter, data: await res.json() }
+    const reader = res.body?.getReader()
+    if (!reader) throw new Error('Empty Wiktionary response')
+    const chunks: Uint8Array[] = []; let size = 0
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        size += value.length
+        if (size > 4 * 1024 * 1024) throw new Error('Wiktionary response exceeds limit')
+        chunks.push(value)
+      }
+    } finally { await reader.cancel() }
+    const bytes = new Uint8Array(size); let offset = 0
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+    return { ok: true, status: res.status, retryAfter, data: JSON.parse(new TextDecoder().decode(bytes)) }
   } finally {
     clearTimeout(timer)
   }
 }
 
-async function api (params: Record<string, string>): Promise<any> {
+async function api (params: Record<string, string>, signal?: AbortSignal): Promise<any> {
   for (let attempt = 0; ; attempt++) {
-    const res = await schedule(() => fetchOnce(params))
+    signal?.throwIfAborted()
+    const res = await schedule(() => fetchOnce(params, signal), signal)
     if (res.status === 429 && attempt < 2) {
-      await new Promise(resolve => setTimeout(resolve, Math.min(res.retryAfter, 5) * 1000))
+      await delay(Math.min(res.retryAfter, 5) * 1000, signal)
       continue
     }
     if (!res.ok) throw new Error(`Wiktionary HTTP ${res.status}`)
@@ -507,4 +539,22 @@ export async function getLexicons (
     result.set(word, lexicon)
   }
   return result
+}
+
+/** Revision-scoped source pages for server lexical enrichment. Uses the shared queue. */
+export interface WiktionaryPage {
+  title: string; revision: number; timestamp: string; wikitext: string; source: string
+}
+export async function queryWiktionaryPages(titles: string[], signal?: AbortSignal): Promise<WiktionaryPage[]> {
+  const unique = [...new Set(titles)]
+  if (!unique.length || unique.length > 20) throw new Error('Invalid Wiktionary batch size')
+  signal?.throwIfAborted()
+  const data = await api({ action: 'query', prop: 'revisions', rvprop: 'ids|timestamp|content', rvslots: 'main', titles: unique.join('|') }, signal)
+  if (!Array.isArray(data?.query?.pages)) throw new Error('Invalid Wiktionary response')
+  return data.query.pages.flatMap((page: any) => {
+    if (page?.missing) return []
+    const revision = page?.revisions?.[0]
+    if (typeof page?.title !== 'string' || !Number.isSafeInteger(revision?.revid) || typeof revision?.timestamp !== 'string' || typeof revision?.slots?.main?.content !== 'string') throw new Error('Invalid Wiktionary revision')
+    return [{ title: page.title, revision: revision.revid, timestamp: revision.timestamp, wikitext: revision.slots.main.content, source: `https://en.wiktionary.org/w/index.php?oldid=${revision.revid}` }]
+  })
 }

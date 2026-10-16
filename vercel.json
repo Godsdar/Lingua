@@ -12,6 +12,9 @@
     "api/analysis.mjs": {
       "maxDuration": 30
     },
+    "api/lexicon.mjs": {
+      "maxDuration": 30
+    },
     "api/health.mjs": {
       "maxDuration": 5
     }

@@ -59,4 +59,9 @@ Motion explains a user's action. No looping leaves, camera flights, or delayed a
 
 ## First-user release boundary
 
-The public page must still say “prepared examples”. It is suitable for testing the interaction concept. It is not yet suitable for users expecting arbitrary sentence analysis or durable saved work. Do not remove that disclosure until the relevant gates pass.
+ADR-013/014 supersede the original prepared-only launch boundary. The public
+workspace now distinguishes live statistical grammar, grammar-based readings,
+explicit sourced lexical lookup and offline prepared examples. Live graphs show
+only supported explicit sources/components with separate origins; curated
+families can show wider related-language branches. This remains an alpha with
+session-only notes and no claim of complete semantics or etymological coverage.
