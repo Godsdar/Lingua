@@ -1,10 +1,11 @@
-import { useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react'
 import { ancestorIds, familyLayout, familyHierarchy, relationNames, syntaxLayout } from '../domain/graphs'
+import { extendHistory, foldHistory, historyLimit, parseHistory, type HistoryResult } from '../domain/history'
 import type { Family, Token } from '../domain/graphs'
 
-interface FamilyProps { family: Family; word: string }
+interface FamilyProps { family: Family; word: string; onFamilyChange?: (family: Family) => void }
 
 // Exiting nodes must not remain keyboard targets while their branch fades out.
 function FamilyPoint({ node, selected, lineage, reduced, onSelect }: {
@@ -25,7 +26,12 @@ function FamilyPoint({ node, selected, lineage, reduced, onSelect }: {
   </motion.div>
 }
 
-function FamilyExplorer({ family, word }: FamilyProps) {
+function FamilyExplorer({ family: initialFamily, word, onFamilyChange }: FamilyProps) {
+  const [family, setFamily] = useState(initialFamily)
+  const request = useRef<AbortController | null>(null)
+  const [pending, setPending] = useState(false)
+  const [historyMessage, setHistoryMessage] = useState('')
+  const [choice, setChoice] = useState<{ nodeId: string; result: HistoryResult } | null>(null)
   const leaves = useMemo(() => familyHierarchy(family.nodes).leaves().map(n => n.data), [family])
   const sourced = family.direction === 'sources'
   const anchor = leaves.find(n => n.lang === 'English') ?? leaves[0]
@@ -46,10 +52,46 @@ function FamilyExplorer({ family, word }: FamilyProps) {
   const ancestry = useMemo(() => ancestorIds(family.nodes, selected.id), [family, selected.id])
   const trail = useMemo(() => familyHierarchy(family.nodes).descendants().find(n => n.id === selected.id)!.ancestors().reverse(), [family, selected.id])
   const transition = { duration: reduced ? 0 : .32, ease: [.22, 1, .36, 1] as [number, number, number, number] }
+  function selectNode(id: string) {
+    request.current?.abort(); request.current = null
+    setPending(false); setChoice(null); setHistoryMessage(''); setSelected(id)
+  }
+  useEffect(() => {
+    request.current?.abort(); request.current = null
+    setPending(false); setChoice(null); setHistoryMessage('')
+    return () => { request.current?.abort(); request.current = null }
+  }, [selectedId])
+  function applyHistory(result: HistoryResult, choiceId?: string) {
+    const next = extendHistory(family, selected.id, result, choiceId)
+    const children = next.nodes.filter(n => n.parent === selected.id).map(n => n.id)
+    setFamily(next); onFamilyChange?.(next)
+    setEndpoints(previous => [...new Set([...previous.filter(id => id !== selected.id), ...(children.length ? children : [selected.id])])])
+    setPathOnly(false); setChoice(null)
+    setHistoryMessage(children.length ? `${children.length} sourced ${children.length === 1 ? 'form' : 'forms'} added. Choose a new form to go deeper.` : 'No supported continuation found. The entry remains available below.')
+  }
+  async function exploreHistory() {
+    if (!selected.lookup || pending) return
+    const controller = new AbortController(); request.current?.abort(); request.current = controller
+    setPending(true); setHistoryMessage('Reading the cited dictionary entry…'); setChoice(null)
+    const timer = setTimeout(() => controller.abort(), 12000)
+    try {
+      const response = await fetch('/api/etymology', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', signal: controller.signal, body: JSON.stringify(selected.lookup) })
+      if (!response.ok) throw new Error(response.status === 429 ? 'The dictionary is busy. Wait a minute before retrying.' : 'The entry could not be loaded. Your tree is safe; try again when ready.')
+      const result = parseHistory(await response.json(), selected.lookup)
+      if (request.current !== controller || controller.signal.aborted) return
+      if (result.choices.length > 1) { setChoice({ nodeId: selected.id, result }); setHistoryMessage('This entry has different etymologies. Choose one to explore; they will not be combined.') }
+      else applyHistory(result)
+    } catch (error) {
+      if (request.current === controller) setHistoryMessage(controller.signal.aborted ? 'Lookup stopped. You can retry when ready.' : error instanceof Error ? error.message : 'The entry could not be read.')
+    } finally { clearTimeout(timer); if (request.current === controller) { request.current = null; setPending(false) } }
+  }
+  const continuation = family.nodes.filter(n => n.parent === selected.id)
+  const continuationVisible = layout.nodes.some(n => n.parent === selected.id)
+  const limit = historyLimit(family, selected.id)
   function reveal(next: string[]) {
     setEndpoints(next)
     setPathOnly(false)
-    if (!familyLayout(family.nodes, next.length ? next : [initial.id]).nodes.some(n => n.id === selectedId)) setSelected(initial.id)
+    if (!familyLayout(family.nodes, next.length ? next : [initial.id]).nodes.some(n => n.id === selectedId)) selectNode(initial.id)
   }
   function toggle(id: string) {
     if (!sourced && id === anchor.id) return
@@ -104,22 +146,34 @@ function FamilyExplorer({ family, word }: FamilyProps) {
               </svg>
               <AnimatePresence initial={false}>
                 {layout.nodes.map(node => <FamilyPoint key={node.id} node={node} selected={selected.id === node.id}
-                  lineage={ancestry.has(node.id)} reduced={reduced} onSelect={() => setSelected(node.id)} />)}
+                  lineage={ancestry.has(node.id)} reduced={reduced} onSelect={() => selectNode(node.id)} />)}
               </AnimatePresence>
             </div>
           </motion.div>
         </div>
         <div className="lp-graph-legend"><span>{sourced ? 'Word above · cited forms below' : 'Ancestors below · relatives above'}</span><span>┄ omitted stages</span><span>* reconstructed</span></div>
-        <p className="lp-explorer-hint">Choose a form to follow its story. {leaves.length > 1 ? 'Unfold branches above; scroll across wider trees.' : 'This entry has no further cited branches.'}</p>
+        <p className="lp-explorer-hint">Choose a form to follow its story. {sourced ? 'Select a form, then Explore deeper to follow its cited history.' : 'Unfold branches above; scroll across wider trees.'}</p>
       </div>
       <aside className="lp-inspector lp-family-inspector">
         <div className="lp-section-label">Field note</div>
         <div aria-live="polite" aria-atomic="true"><p className={`lp-word ${selected.reconstructed ? 'is-reconstructed' : ''}`}>{selected.label}</p><p className="lp-label">{selected.lang}{selected.reconstructed ? ' · reconstructed' : ''}</p></div>
+        {sourced && <section className="lp-history-controls" aria-label="Explore word history">
+          {continuation.length > 0 ? <button onClick={() => { setPathOnly(false); setEndpoints(previous => continuationVisible ? foldHistory(family, previous, selected.id) : [...new Set([...previous.filter(id => id !== selected.id), ...continuation.map(n => n.id)])]) }}>{continuationVisible ? 'Fold continuation' : 'Unfold continuation'}</button> :
+            selected.lookup && !selected.historyState ? <button className="lp-main" disabled={pending || !!limit} onClick={exploreHistory}>Explore deeper ↘</button> : null}
+          {pending && <button onClick={() => { request.current?.abort(); request.current = null; setPending(false); setHistoryMessage('Lookup cancelled. Your tree is unchanged.') }}>Cancel</button>}
+          <p className="lp-label">{limit || selected.historyNote || (!selected.lookup ? 'This language or form is not supported for expansion. Read the linked entry.' : 'Loads only this form and language from Wiktionary when you choose Explore deeper.')}</p>
+          <p className="lp-history-status" role="status" aria-live="polite">{historyMessage}</p>
+          {choice?.nodeId === selected.id && <div className="lp-history-choices" role="group" aria-label="Choose a separate etymology">
+            {choice.result.choices.map(option => <button key={option.id} onClick={() => { try { applyHistory(choice.result, option.id) } catch (error) { setHistoryMessage(error instanceof Error ? error.message : 'Cannot add this history.') } }}>
+              <strong>{option.label}</strong><span>{option.summary}</span><small>{option.nodes.length > 1 ? `${option.nodes.length - 1} cited forms` : 'No supported continuation'}</small>
+            </button>)}
+          </div>}
+        </section>}
         <p className="lp-word-gloss">{selected.gloss || family.note}</p>
         <nav className="lp-lineage-trail" aria-label="Selected lineage">
-          {trail.map(n => <button key={n.id} aria-current={n.id === selected.id ? 'true' : undefined} onClick={() => setSelected(n.data.id)}>{n.data.label}</button>)}
+          {trail.map(n => <button key={n.id} aria-current={n.id === selected.id ? 'true' : undefined} onClick={() => selectNode(n.data.id)}>{n.data.label}</button>)}
         </nav>
-        {sourced && selected.relation && <p className="lp-label">Relation: {selected.relation}.{selected.relation === 'component' ? ' A word part, not a historical ancestor.' : ''}</p>}
+        {sourced && selected.relation && <p className="lp-label">Relation: {selected.relation}.{selected.relation === 'component' ? ' A word part, not a historical ancestor.' : selected.relation === 'form-of' ? ' The previous form is an inflection of this lemma; this is not ancestry.' : ''}</p>}
         <p className="lp-label">{selected.condensed ? `Omitted stages: ${selected.skipped.join(' → ')}` : sourced ? 'Explicitly cited in the dictionary entry.' : 'A sourced form in this word family.'}</p>
         <div className="lp-evidence-links"><a href={selected.source} target="_blank" rel="noreferrer">Read the entry ↗</a>
           {selected.edgeSource && <a href={selected.edgeSource} target="_blank" rel="noreferrer">Relation evidence ↗</a>}</div>

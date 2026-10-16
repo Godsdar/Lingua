@@ -45,7 +45,9 @@ function getService() {
 export const publicAnalysis = (request: IncomingMessage, response: ServerResponse) => publicRequest('/v1/analysis', request, response)
 export const publicLexicon = (request: IncomingMessage, response: ServerResponse) => publicRequest('/v1/lexicon', request, response)
 
-async function publicRequest(route: '/v1/analysis' | '/v1/lexicon', request: IncomingMessage, response: ServerResponse) {
+export const publicEtymology = (request: IncomingMessage, response: ServerResponse) => publicRequest('/v1/etymology', request, response)
+
+async function publicRequest(route: '/v1/analysis' | '/v1/lexicon' | '/v1/etymology', request: IncomingMessage, response: ServerResponse) {
   const cancelled = new AbortController()
   const abort = () => cancelled.abort()
   request.once('aborted', abort)

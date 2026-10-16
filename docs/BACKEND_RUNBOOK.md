@@ -181,3 +181,24 @@ origins, `component` versus historical relations, revision links, unavailable
 state and safe export. Verify a failed lookup leaves grammar usable. Do not
 run bulk load tests against Wikimedia. Restore the preceding Vercel deployment
 if the provider is unavailable or the extractor produces unsupported edges.
+
+## Progressive history (ADR-016)
+
+`POST /api/etymology` / authenticated `POST /v1/etymology` accepts, for example,
+`{"language":"la","term":"computo"}`. The server returns the same target,
+revision URL, separate `choices` with summary/reason, and immediate source nodes.
+An unsupported continuation is a successful empty result with a reason; network
+failures retain the existing error envelope. Never auto-select among multiple
+choices, even if only one has supported edges.
+
+This route shares the lexical guard/cache and public limits. It loads one page,
+never recursively crawls. Language codes come from `src/shared/etymology.ts`.
+Namespaces/hosts are fixed; there is no arbitrary URL field. The public adapter
+for local development includes the same route. Vercel uses `api/etymology.mjs`.
+
+Smoke: **Look up computer** → compute → Explore deeper → French computer →
+choose the verb etymology → computāre → computō → con- / putō. Verify `form-of`
+versus borrowing/components and distinct revision links. Also try sunflower,
+missing entries, unknown histories, cancelling, folding, selecting another word,
+and exporting after several steps. Testing against Wikimedia must remain small;
+use injected pages for automated regression tests.

@@ -1,3 +1,4 @@
+import type { HistoryTarget } from '../../src/shared/etymology.ts'
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import Fastify, { LogController } from 'fastify'
 import helmet from '@fastify/helmet'
@@ -7,11 +8,11 @@ import { translate } from '../../src/core/providers.ts'
 import type { TranslateRequest } from '../../src/shared/types.ts'
 import { analyzeSelection, validateText, type AnalysisInput } from './analysis.ts'
 import { httpParser, liveResult, type Parse } from './live-analysis.ts'
-import { createLexiconLookup, type LexiconInput, type LookupPages } from './lexicon.ts'
+import { createLexiconLookup, createHistoryLookup, createPageCache, type LexiconInput, type LookupPages } from './lexicon.ts'
 import { ProviderGuard } from './resilience.ts'
 import { ServiceError } from './errors.ts'
 import type { Config } from './config.ts'
-import { analysisSchema, translationSchema, analysisResponse, translationResponse, errors, lexiconSchema } from './schemas.ts'
+import { analysisSchema, translationSchema, analysisResponse, translationResponse, errors, lexiconSchema, historySchema } from './schemas.ts'
 
 export async function buildApp(config: Config, dependencies: {
   parse?: Parse
@@ -28,7 +29,9 @@ export async function buildApp(config: Config, dependencies: {
   })
   const parse = dependencies.parse ?? (config.engineUrl && config.apiKey ? httpParser(config.engineUrl, config.apiKey, process.env.VERCEL_AUTOMATION_BYPASS_SECRET) : undefined)
   const parsing = new ProviderGuard({ concurrency: 2, deadlineMs: 20000, service: 'Language analysis' })
-  const lexical = createLexiconLookup(dependencies.lookupPages)
+  const pages = createPageCache(dependencies.lookupPages)
+  const lexical = createLexiconLookup(dependencies.lookupPages, pages)
+  const history = createHistoryLookup(pages)
   const lexicalGuard = new ProviderGuard({ concurrency: 2, deadlineMs: 7000, service: 'Dictionary lookup' })
   const shutdown = new AbortController()
   let draining = false
@@ -83,6 +86,11 @@ export async function buildApp(config: Config, dependencies: {
   app.post<{ Body: LexiconInput }>('/v1/lexicon', { schema: { security: apiSecurity, body: lexiconSchema } }, async request => {
     const parent = AbortSignal.any([shutdown.signal, cancellations.get(request)!.signal])
     const result = await lexicalGuard.run(signal => lexical(request.body, signal), parent)
+    return { requestId: request.id, ...result }
+  })
+  app.post<{ Body: HistoryTarget }>('/v1/etymology', { schema: { security: apiSecurity, body: historySchema } }, async request => {
+    const parent = AbortSignal.any([shutdown.signal, cancellations.get(request)!.signal])
+    const result = await lexicalGuard.run(signal => history(request.body, signal), parent)
     return { requestId: request.id, ...result }
   })
   app.post<{ Body: TranslateRequest }>('/v1/translation', { schema: { security: apiSecurity, body: translationSchema, response: { 200: translationResponse, ...errors } } }, async request => {

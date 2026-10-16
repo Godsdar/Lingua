@@ -243,3 +243,18 @@ body:has([data-variant]:not([hidden]) .lp[data-theme="light"]) .lp-layout-picker
 @media(max-width:900px){#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr) 215px;gap:20px;}#lingua-concept .lp-header>.lp-label{display:none;}#lingua-concept .lp{padding:24px;}}
 @media(max-width:760px){.lp-demo-shell{padding:0 12px;margin:12px auto;}#lingua-concept .lp{padding:20px;}#lingua-concept .lp-explorer-grid{grid-template-columns:minmax(0,1fr);}#lingua-concept .lp-family-inspector{padding:22px 0 0;}#lingua-concept .lp-intro{font-size:32px;}#lingua-concept .lp-composer>summary .lp-label{display:block;margin:5px 0 0;}#lingua-concept .lp-graph-scroll{scroll-padding-inline:16px;}#lingua-concept .lp-source{font-size:24px;}}
 @media(max-width:420px){#lingua-concept .lp{padding:18px 14px;}#lingua-concept .lp-header{gap:14px;}#lingua-concept .lp-theme{margin-left:0;}#lingua-concept .lp-intro{font-size:30px;}#lingua-concept .lp-notebook-label{font-size:10px;}#lingua-concept .lp-source{font-size:22px;}#lingua-concept .lp-tabs{gap:20px;}#lingua-concept .lp .lp-theme button{padding:5px 8px;}}
+
+/* Explicit source expansion stays beside the selected form, never auto-crawls. */
+#lingua-concept .lp-history-controls{margin:16px 0 20px;padding-bottom:14px;border-bottom:1px solid var(--lp-line);}
+#lingua-concept .lp-history-controls>button{border:1px solid var(--lp-line);font-size:13px;margin:0 6px 10px 0;cursor:pointer;}
+#lingua-concept .lp-history-controls p{font-size:12px;margin:0 0 8px;}
+#lingua-concept .lp-history-status{color:var(--lp-accent);}
+#lingua-concept .lp-history-status:empty{display:none;}
+#lingua-concept .lp-history-choices{display:flex;flex-direction:column;gap:8px;}
+#lingua-concept .lp-history-choices button{text-align:left;padding:10px;border:1px solid var(--lp-line);background:var(--lp-surface);cursor:pointer;}
+#lingua-concept .lp-history-choices strong,#lingua-concept .lp-history-choices span,#lingua-concept .lp-history-choices small{display:block;}
+#lingua-concept .lp-history-choices strong{font-size:13px;color:var(--lp-accent);}
+#lingua-concept .lp-history-choices span{font-size:12px;margin:5px 0;}
+#lingua-concept .lp-history-choices small{font-size:11px;color:var(--lp-muted);}
+
+#lingua-concept .lp-family-node.is-root:not(.is-reconstructed) .lp-form{font-style:normal;}

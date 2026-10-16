@@ -37,3 +37,12 @@ export const lexiconSchema = {
     } }
   }
 }
+
+
+export const historySchema = {
+  type: 'object', additionalProperties: false, required: ['language', 'term'],
+  properties: {
+    language: { type: 'string', minLength: 2, maxLength: 20, pattern: '^[a-z-]+$' },
+    term: { type: 'string', minLength: 1, maxLength: 80 }
+  }
+}

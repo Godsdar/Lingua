@@ -89,3 +89,19 @@ test('family layout leaves room for word labels and preserves root-only source g
   assert.deepEqual(folded.nodes.map(n => n.id), ['word'])
   assert.equal(folded.links.length, 0)
 })
+
+test('a short source branch stays next to its parent as another branch grows deeper', () => {
+  const base = {lang:'English',source:'https://en.wiktionary.org/wiki/word',skipped:[]}
+  const nodes = [
+    {...base,id:'word',label:'word',parent:null},
+    {...base,id:'part',label:'part',parent:'word'},
+    {...base,id:'suffix',label:'-er',parent:'word'},
+    {...base,id:'old',label:'old',parent:'part'},
+    {...base,id:'older',label:'older',parent:'old'}
+  ]
+  const graph = familyLayout(nodes,['suffix','older'],'sources')
+  const point = id=>graph.nodes.find(n=>n.id===id)
+  assert.equal(point('suffix').y,point('part').y)
+  assert.ok(point('suffix').y<point('old').y)
+  assert.ok(graph.links.every(({from,to})=>from.y<to.y))
+})

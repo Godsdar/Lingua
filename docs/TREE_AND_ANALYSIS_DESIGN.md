@@ -85,3 +85,19 @@ and keep relation labels. Folding all live sources leaves the word visible.
 No forms, edges or source claims are added by the redesign. Native horizontal
 scrolling keeps wide trees readable; the inspector stacks below on narrow
 screens. The legacy Dictionary entry and its saved data remain in place.
+
+## Live continuation — ADR-016
+
+For a live sourced form, the inspector's **Explore deeper** explicitly loads its
+own language section from Wiktionary. New source branches animate into the
+existing graph. **Fold continuation** hides the selected form's children without
+losing their evidence; unfolding reuses loaded data. Short branches remain near
+their parent while deeper histories grow downward.
+
+Multiple etymologies require a reader choice; unsupported alternatives remain
+visible so omission cannot silently choose a sense. Chosen alternatives,
+revision links, unavailable states, components and `form-of` links survive
+exports. A path stops on repeated forms, at eight steps, or at 64 graph nodes.
+Cancel/selection changes keep already loaded history. Themes and reduced-motion
+behavior remain as in ADR-015. Quick sunflower/computer buttons perform real
+explicit lookups, not prepared graph matching. Other words use the same path.

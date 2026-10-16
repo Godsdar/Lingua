@@ -33,6 +33,12 @@ Look up a new word to explore its documented sources, or choose the curated
 show supported explicit sources/components; they are not complete word families.
 Distinct origins, source links and reconstructed forms remain visible.
 
+Try **Look up sunflower** or **Look up computer**, select a form, then choose
+**Explore deeper**. Each click reads one Wiktionary entry and unfolds its supported
+sources. Separate etymologies require a choice; components and inflected forms
+are labelled separately from ancestry. Expanded histories and their revision links
+travel with exported notes. No paid API is required.
+
 [![Lingua word family: sourced ancestors and modern relatives](docs/assets/concept-family@2x.png)](docs/assets/concept-family@2x.png)
 
 ## A sentence’s structure
@@ -161,6 +167,9 @@ The gateway is stateless; there are no accounts or persistent server notes.
 Vercel Hobby has usage caps and no availability guarantee. See
 [the live-analysis decision](docs/decisions/ADR-013-live-grammar-alpha.md) and
 [lexical evidence decision](docs/decisions/ADR-014-live-lexical-evidence.md).
+The `/api/etymology` route continues a selected historical form on demand, with
+the same request limits and a shared per-instance page cache. See the
+[progressive history decision](docs/decisions/ADR-016-progressive-sourced-history.md).
 
 [Architecture](docs/BACKEND_ARCHITECTURE.md) · [Runbook](docs/BACKEND_RUNBOOK.md) ·
 [Backend decision](docs/decisions/ADR-012-node-backend.md)

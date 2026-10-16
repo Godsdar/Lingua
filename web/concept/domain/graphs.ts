@@ -1,4 +1,5 @@
-import { cluster, stratify } from 'd3-hierarchy'
+import type { HistoryTarget } from '../../../src/shared/etymology'
+import { cluster, stratify, tree } from 'd3-hierarchy'
 
 export interface FamilyNode {
   id: string
@@ -6,12 +7,16 @@ export interface FamilyNode {
   label: string
   lang: string
   source: string
+  lookup?: HistoryTarget
+  historyState?: 'expanded' | 'unavailable' | 'cycle'
+  historyNote?: string
+  historyChoice?: { id: string; source: string; readerSelected: boolean }
   edgeSource?: string
   reconstructed?: boolean
   condensed?: boolean
   skipped: string[]
   gloss?: string
-  relation?: 'inherited' | 'borrowed' | 'derived' | 'component'
+  relation?: 'inherited' | 'borrowed' | 'derived' | 'component' | 'form-of'
 }
 
 export interface Family {
@@ -70,7 +75,10 @@ export function familyLayout(nodes: FamilyNode[], endpoints: string[], direction
   const root = familyHierarchy(nodes.filter(n => visible.has(n.id)))
   const width = Math.max(340, root.leaves().length * 156 + 130)
   const height = Math.max(400, root.height * 112 + 160)
-  const laidOut = cluster<FamilyNode>().separation(() => 1).size([width - 130, height - 130])(root)
+  // Source histories unfold by depth; short component branches should stay near
+  // their parent instead of sinking to the oldest revealed generation.
+  const engine = direction === 'sources' ? tree<FamilyNode>() : cluster<FamilyNode>()
+  const laidOut = engine.separation(() => 1).size([width - 130, height - 130])(root)
   const points = laidOut.descendants().map(n => ({
     ...n.data, x: n.x + 65, y: direction === 'sources' ? n.y + 65 : height - 65 - n.y, depth: n.depth
   }))

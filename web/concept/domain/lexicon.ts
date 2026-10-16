@@ -1,3 +1,4 @@
+import { historyTarget, historyLanguages } from '../../../src/shared/etymology.ts'
 import type { Family, FamilyNode, Token } from './graphs'
 
 export interface LexiconRequest {
@@ -47,11 +48,14 @@ function provenance(value: unknown): LexicalProvenance {
   return { engine: value.engine, version: value.version, live: true, source: value.source, license: value.license }
 }
 
-function family(value: unknown): SourcedFamily {
+export function parseSourcedFamily(value: unknown): SourcedFamily {
   if (!object(value) || !required(value.id, 100) || !required(value.label, 200) || value.direction !== 'sources' || !text(value.note) || !required(value.attribution, 1000) || !required(value.verifiedOn, 100) || !Array.isArray(value.nodes) || !value.nodes.length || value.nodes.length > 40) throw invalid()
   const nodes: FamilyNode[] = value.nodes.map((n: unknown) => {
-    if (!object(n) || !required(n.id, 200) || !(n.parent === null || required(n.parent, 200)) || !required(n.label, 200) || !required(n.lang, 100) || !source(n.source) || (n.edgeSource !== undefined && !source(n.edgeSource)) || !Array.isArray(n.skipped) || n.skipped.length > 20 || n.skipped.some(v => !text(v, 200)) || (n.reconstructed !== undefined && typeof n.reconstructed !== 'boolean') || (n.condensed !== undefined && typeof n.condensed !== 'boolean') || (n.gloss !== undefined && !text(n.gloss)) || (n.parent !== null && !['inherited', 'borrowed', 'derived', 'component'].includes(String(n.relation)))) throw invalid()
-    return { id: n.id, parent: n.parent, label: n.label, lang: n.lang, source: n.source, edgeSource: n.edgeSource as string | undefined, reconstructed: n.reconstructed as boolean | undefined, condensed: n.condensed as boolean | undefined, skipped: n.skipped as string[], gloss: n.gloss as string | undefined, relation: n.relation as FamilyNode['relation'] }
+    if (!object(n) || !required(n.id, 200) || !(n.parent === null || required(n.parent, 200)) || !required(n.label, 200) || !required(n.lang, 100) || !source(n.source) || (n.edgeSource !== undefined && !source(n.edgeSource)) || !Array.isArray(n.skipped) || n.skipped.length > 20 || n.skipped.some(v => !text(v, 200)) || (n.reconstructed !== undefined && typeof n.reconstructed !== 'boolean') || (n.condensed !== undefined && typeof n.condensed !== 'boolean') || (n.gloss !== undefined && !text(n.gloss)) || (n.parent !== null && !['inherited', 'borrowed', 'derived', 'component', 'form-of'].includes(String(n.relation)))) throw invalid()
+    const lookup = n.lookup === undefined ? undefined : object(n.lookup) && typeof n.lookup.language === 'string' && typeof n.lookup.term === 'string' ? historyTarget(n.lookup.language, n.lookup.term) : undefined
+    if (n.lookup !== undefined && (!lookup || historyLanguages[lookup.language] !== n.lang)) throw invalid()
+    if ((n.historyState !== undefined && n.historyState !== 'unavailable') || (n.historyNote !== undefined && !text(n.historyNote))) throw invalid()
+    return { lookup, historyState: n.historyState as 'unavailable' | undefined, historyNote: n.historyNote as string | undefined, id: n.id, parent: n.parent, label: n.label, lang: n.lang, source: n.source, edgeSource: n.edgeSource as string | undefined, reconstructed: n.reconstructed as boolean | undefined, condensed: n.condensed as boolean | undefined, skipped: n.skipped as string[], gloss: n.gloss as string | undefined, relation: n.relation as FamilyNode['relation'] }
   })
   if (new Set(nodes.map(n => n.id)).size !== nodes.length || nodes.filter(n => n.parent === null).length !== 1) throw invalid()
   const byId = new Map(nodes.map(n => [n.id, n]))
@@ -85,7 +89,7 @@ export function parseLexicon(value: unknown, request: LexiconRequest): LexicalRe
     const evidence = provenance(etymology.provenance); result.provenance ??= evidence
     if (!object(etymology.data) || !Array.isArray(etymology.data.families) || etymology.data.families.length > 12 || !text(etymology.data.note)) throw invalid()
     result.etymologyNote = etymology.data.note
-    result.families = etymology.data.families.map(family)
+    result.families = etymology.data.families.map(parseSourcedFamily)
     if (new Set(result.families.map(f => f.id)).size !== result.families.length) throw invalid()
   } else if (etymology.status === 'unavailable' && text(etymology.reason)) result.etymologyReason = etymology.reason
   else throw invalid()
@@ -95,3 +99,5 @@ export function parseLexicon(value: unknown, request: LexiconRequest): LexicalRe
   }
   return result
 }
+
+export const isWiktionarySource = source
